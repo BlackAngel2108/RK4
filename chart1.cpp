@@ -97,7 +97,8 @@ void View_Chart1::Title(QString str){
     m_chart->setTitle(str);
 }
 void View_Chart1::make_chart(std::vector<std::pair<double,double>> &v,bool flag){
-
+    m_chart->removeSeries(series);
+    m_chart->removeSeries(series2);
     if(flag==0){
         series->clear();
         int n=v.size();
@@ -113,6 +114,9 @@ void View_Chart1::make_chart(std::vector<std::pair<double,double>> &v,bool flag)
             series2->append(v[i].first, v[i].second);
         }
     }
+    m_chart->addSeries(series);
+    m_chart->addSeries(series2);
+
     axisX->setRange(0, 20.5);
     axisX->setTickCount(10);
     axisX->setLabelFormat("%.2f");
