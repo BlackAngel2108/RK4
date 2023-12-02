@@ -232,24 +232,31 @@
        <number>10</number>
       </property>
       <item>
-       <widget class="QPushButton" name="pbTest">
-        <property name="text">
-         <string>Вывести исходное уравнение</string>
+       <layout class="QHBoxLayout" name="horizontalLayout_11">
+        <property name="bottomMargin">
+         <number>10</number>
         </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QLabel" name="label">
-        <property name="toolTip">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Задача&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-        </property>
-        <property name="text">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Задача&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-        </property>
-        <property name="indent">
-         <number>5</number>
-        </property>
-       </widget>
+        <item>
+         <widget class="QLabel" name="label">
+          <property name="toolTip">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Задача&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+          <property name="text">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Задача&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+          <property name="indent">
+           <number>5</number>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="lbElapsedTSecs">
+          <property name="text">
+           <string>Время: 0</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </item>
       <item>
        <widget class="QComboBox" name="comboBox">
@@ -272,21 +279,28 @@
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="pushButton_2">
+       <widget class="QPushButton" name="pbCalculate">
         <property name="text">
          <string>Вычислить</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="pushButton_3">
+       <widget class="QPushButton" name="pbResults">
+        <property name="text">
+         <string>Вывести результаты</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="pbClearCharts">
         <property name="text">
          <string>Очистить график</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="pushButton">
+       <widget class="QPushButton" name="pbQuit">
         <property name="text">
          <string>Выход</string>
         </property>
@@ -474,7 +488,7 @@
      <x>0</x>
      <y>0</y>
      <width>967</width>
-     <height>17</height>
+     <height>23</height>
     </rect>
    </property>
   </widget>
@@ -492,7 +506,7 @@
  <resources/>
  <connections>
   <connection>
-   <sender>pushButton</sender>
+   <sender>pbQuit</sender>
    <signal>clicked()</signal>
    <receiver>MainWindow</receiver>
    <slot>close()</slot>

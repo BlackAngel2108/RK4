@@ -27,12 +27,14 @@ CONFIG += c++17
 
 SOURCES += \
         main.cpp \
+    main_calc_th.cpp \
         mainwindow.cpp \
     main_task.cpp \
     chart1.cpp
 
 HEADERS += \
-        mainwindow.h \
+    main_calc_th.h \
+    mainwindow.h \
     main_task.h \
     #numcpp.h \
     chart1.h \
