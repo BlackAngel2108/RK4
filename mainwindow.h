@@ -27,7 +27,7 @@ protected:
     void timerEvent(QTimerEvent *event) override;
     int timerCalcID;
     QString lastPbName;
-    int calcSecs;
+    int calc100ms;
 private:
     View_Chart1* v_chart1;
     View_Chart1* v_chart2;
@@ -56,6 +56,8 @@ private slots:
 
 private:
     Ui::MainWindow *ui;
+signals:
+    void evClearAll(void);
 };
 
 #endif // MAINWINDOW_H

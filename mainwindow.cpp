@@ -47,6 +47,7 @@ MainWindow::MainWindow(QWidget *parent) :
     //ui->tableWidget_2->horizontalHeader()->resizeSection(1, 180);
 
     connect(&mainCalcTh, &MainCalcTh::resultReady, this, &MainWindow::fillResultsProcess );
+    connect(this, &MainWindow::evClearAll, this, &MainWindow::on_pbClearCharts_clicked, Qt::QueuedConnection);
 }
 
 MainWindow::~MainWindow()
@@ -77,6 +78,7 @@ void MainWindow::resizeCharts()
 
 void MainWindow::on_twMain_currentChanged(int index)
 {
+    Q_UNUSED(index);
     resizeCharts();
 }
 
@@ -123,7 +125,7 @@ void MainWindow::updateDataTable(unsigned int num_of_lines1,unsigned int num_of_
         int row = ui->tableWidget->rowCount();
         ui->tableWidget->setRowCount(row + 1);
         int N = N_DEF;
-        int temp=answer.second.first.size();
+        //int temp=answer.second.first.size();
         QTableWidgetItem *item0 = new QTableWidgetItem(QString::number(answer.second.first[i*N].first));
         ui->tableWidget->setItem(row, 0, item0);
         for(int j=1;j<N;j++){
@@ -189,8 +191,8 @@ void MainWindow::on_pbCalculate_clicked()
     double F=m*f*9.81; //mgf
 
     // Helper functions lambda functions
-    inFunc.f1 = [](double x, std::vector<double> u) { return u[1]; };
-    inFunc.f2 = [F, k, m](double x, std::vector<double> u) { return (-F/m-k*u[0])/m; };//u(1) уточнить - уточнила
+    inFunc.f1 = [](double x, std::vector<double> u) { (void)x; return u[1]; };
+    inFunc.f2 = [F, k, m](double x, std::vector<double> u) { (void)x; return (-F/m-k*u[0])/m; };//u(1) уточнить - уточнила
 
     // Main calculation process
     if(mainCalcTh.isRunning()){
@@ -206,14 +208,17 @@ void MainWindow::on_pbCalculate_clicked()
     mainCalcTh.setInputData(&inData, &inFunc);
     mainCalcTh.start();
     // Timer and controls
-    calcSecs = 0;
-    timerCalcID = this->startTimer(1000);
+    calc100ms = 0;
+    timerCalcID = this->startTimer(100);
     setControlState();
 }
 
 void MainWindow::fillResultsProcess()
 {
     int N = N_DEF;
+
+    //emit evClearAll();
+
     answer = mainCalcTh.get_answer();
 
     int num_of_lines1=answer.second.first.size()/N; //9 - 11
@@ -313,25 +318,34 @@ void MainWindow::fillResultsProcess()
 //    QString text2=" Точное решение";
 //    QString all=text+text2;
 //    ui->textEdit->setText(all);
+    on_pbResults_clicked();
     this->killTimer(timerCalcID);
     setControlState();
 }
 
 void MainWindow::setControlState()
 {
-     if(mainCalcTh.isRunning()){
+    QPalette p = palette();
+    if(mainCalcTh.isRunning()){
          ui->pbCalculate->setEnabled(false);
          ui->pbResults->setEnabled(false);
-     }else{
+         p.setColor(QPalette::Highlight, Qt::red);
+    }else{
          ui->pbCalculate->setEnabled(true);
          ui->pbResults->setEnabled(true);
-     }
+         p.setColor(QPalette::Highlight, Qt::green);
+    }
+    ui->progBar->setPalette(p);
 }
 
 void MainWindow::timerEvent(QTimerEvent *event)
 {
-    calcSecs++;
-    ui->lbElapsedTSecs->setText("Время: "+QString::number(calcSecs));
+    Q_UNUSED(event);
+    calc100ms++;
+    QString sTime;
+    sTime.sprintf("%02d:%03d", (calc100ms*100)/1000, (calc100ms*100)%1000);
+    ui->lbElapsedTSecs->setText("Время: " +sTime);
+    ui->progBar->setValue(calc100ms % (ui->progBar->maximum()));
 }
 
 void MainWindow::on_pbResults_clicked()
@@ -343,15 +357,15 @@ void MainWindow::on_pbResults_clicked()
     std::vector<std::pair<double,double>> vec_chart2{}; // u'(u)
     unsigned int num_of_lines1=answer.second.first.size()/9;//9 - 11
     unsigned int num_of_lines2=answer.second.second.size()/9;//9 - 11
-    for(int i=0;i<num_of_lines1;i++) {
+    for(unsigned int i=0;i<num_of_lines1;i++) {
         //answer.first.first[i],answer.first.second[i].first;
         vec_chart1.push_back(std::make_pair(answer.first.first[i],answer.first.second[i][0]));
     }
-    for(int i=0;i<num_of_lines2;i++) {
+    for(unsigned int i=0;i<num_of_lines2;i++) {
         //answer.first.first[i],answer.first.second[i].first;
         vec_chart1_2.push_back(std::make_pair(answer.first.first[i],answer.first.second[i][1]));
     }
-    for(int i=0;i<num_of_lines2;i++) {
+    for(unsigned int i=0;i<num_of_lines2;i++) {
         //answer.first.first[i],answer.first.second[i].first;
         vec_chart2.push_back(std::make_pair(answer.first.second[i][0],answer.first.second[i][1]));
     }
@@ -373,6 +387,7 @@ void MainWindow::on_pbClearCharts_clicked()
 {
     v_chart1->clear();// возможно там что-то неправильно
     v_chart2->clear();
-    ui->lbElapsedTSecs->setText("Время: 0");
+
+    ui->lbElapsedTSecs->setText("Время: 00:000");
 }
 

@@ -26,9 +26,9 @@ DEFINES += QT_DEPRECATED_WARNINGS
 CONFIG += c++17
 
 SOURCES += \
-        main.cpp \
+    main.cpp \
     main_calc_th.cpp \
-        mainwindow.cpp \
+    mainwindow.cpp \
     main_task.cpp \
     chart1.cpp
 
@@ -41,7 +41,7 @@ HEADERS += \
     numcpp.h
 
 FORMS += \
-        mainwindow.ui \
+    mainwindow.ui \
     main_task.ui
 
 # Default rules for deployment.
