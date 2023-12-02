@@ -57,13 +57,12 @@ public:
     QChart *m_chart;
     QLineSeries *series;
     QLineSeries *series2;
-    QValueAxis *axisX;
-    QValueAxis *axisY;
 
     void Title(QString);
     void make_chart(std::vector<std::pair<double,double>> &v,bool);
     void make_x_y(QString, QString);
     void clear();
+    void setAxisNames(QString xName, QString yName);
 protected:
     void resizeEvent(QResizeEvent *event);
     void mouseMoveEvent(QMouseEvent *event);
@@ -77,6 +76,9 @@ private:
     QGraphicsSimpleTextItem *m_coordY;
     Callout *m_tooltip;
     QList<Callout *> m_callouts;
+public:
+    QValueAxis *axisX;
+    QValueAxis *axisY;
 };
 
 #endif

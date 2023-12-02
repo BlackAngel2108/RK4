@@ -28,9 +28,10 @@ protected:
     int timerCalcID;
     QString lastPbName;
     int calc100ms;
+    QTime elapsedCalcTime;
 private:
-    View_Chart1* v_chart1;
-    View_Chart1* v_chart2;
+    View_Chart1* chartU;
+    View_Chart1* chartPhaze;
 
     MainCalcTh mainCalcTh;
 
