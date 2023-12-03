@@ -44,6 +44,8 @@ View_Chart1::View_Chart1(QWidget *parent)
     setDragMode(QGraphicsView::NoDrag);
     setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    sizePolicy().setVerticalPolicy(QSizePolicy::Expanding);
+    sizePolicy().setHorizontalPolicy(QSizePolicy::Expanding);
 
     // chart
     m_chart = new QChart;
@@ -60,11 +62,6 @@ View_Chart1::View_Chart1(QWidget *parent)
 
     axisX = new QValueAxis;
     axisY = new QValueAxis;
-
-    m_chart->setAxisX(axisX, series);
-    m_chart->setAxisY(axisY, series);
-    m_chart->setAxisX(axisX, series2);
-    m_chart->setAxisY(axisY, series2);
 
     m_chart->setAcceptHoverEvents(true);
 
@@ -97,35 +94,38 @@ void View_Chart1::Title(QString str){
     m_chart->setTitle(str);
 }
 void View_Chart1::make_chart(std::vector<std::pair<double,double>> &v,bool flag){
-    m_chart->removeSeries(series);
-    m_chart->removeSeries(series2);
+
+
     if(flag==0){
+        m_chart->removeSeries(series);
         series->clear();
         int n=v.size();
         for(int i=0;i<n;i++){
             series->append(v[i].first, v[i].second);
-        }
+        }           
+        m_chart->addSeries(series);
+        m_chart->setAxisX(axisX, series);
+        m_chart->setAxisY(axisY, series);
     }
     if(flag==1){
-
+        m_chart->removeSeries(series2);
         series2->clear();
         int n=v.size();
         for(int i=0;i<n;i++){
             series2->append(v[i].first, v[i].second);
         }
+        m_chart->addSeries(series2);
+        m_chart->setAxisX(axisX, series2);
+        m_chart->setAxisY(axisY, series2);
     }
-    m_chart->addSeries(series);
-    m_chart->addSeries(series2);
 
-    axisX->setRange(0, 20.5);
+    //axisX->setRange(0, 20.5);
     axisX->setTickCount(10);
     axisX->setLabelFormat("%.2f");
-    axisX->setTitleText("Axis X");
 
     axisY->setRange(-10, 10);
     axisY->setTickCount(10);
     axisY->setLabelFormat("%.2f");
-    axisY->setTitleText("Axis Y");
 }
 void View_Chart1::resizeEvent(QResizeEvent *event)
 {
@@ -155,6 +155,12 @@ void View_Chart1::clear(){
     series->clear();
     series2->clear();
     //m_chart->series().removeFirst();
+}
+
+void View_Chart1::setAxisNames(QString xName, QString yName)
+{
+    axisX->setTitleText(xName);
+    axisY->setTitleText(yName);
 }
 //void View::keepCallout()
 //{

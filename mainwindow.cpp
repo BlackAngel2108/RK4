@@ -18,8 +18,16 @@ MainWindow::MainWindow(QWidget *parent) :
     // Construct Main window
     ui->setupUi(this);
     // Insert QGraphicsView
-    v_chart1 = new View_Chart1(ui->tabChart);
-    v_chart2 = new View_Chart1(ui->tab_chart2);
+    chartU = new View_Chart1(ui->tabChart);
+    chartU->axisX->setTitleText("Axis X");
+    chartU->axisY->setTitleText("Axis U");
+    //v_chart1->setAxisNames("X", "U");
+    chartPhaze = new View_Chart1(ui->tab_chart2);
+    //v_chart2->setAxisNames("U", "U'");
+    chartPhaze->axisX->setTitleText("Axis U");
+    chartPhaze->axisY->setTitleText("Axis U '");
+
+
     // Insert QTableWidget
     ui->tableWidget->setSelectionMode(QAbstractItemView::SingleSelection);
     ui->tableWidget->setSelectionBehavior(QAbstractItemView::SelectRows);
@@ -48,6 +56,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(&mainCalcTh, &MainCalcTh::resultReady, this, &MainWindow::fillResultsProcess );
     connect(this, &MainWindow::evClearAll, this, &MainWindow::on_pbClearCharts_clicked, Qt::QueuedConnection);
+    ui->twMain->setCurrentIndex(0);
 }
 
 MainWindow::~MainWindow()
@@ -62,8 +71,8 @@ void MainWindow::showEvent(QShowEvent *event)
 
     newSize.setHeight(newSize.height()-3); // I do not know why, this is 3 pix error
 //    newSize.setWidth(newSize.width());
-    v_chart1->resize(newSize);
-    v_chart2->resize(newSize);
+    chartU->resize(newSize);
+    chartPhaze->resize(newSize);
     qDebug() << "MW Show() Size w: " << newSize.width() << "h: " << newSize.height();
     //7updateDataTable(int n);
 }
@@ -71,8 +80,8 @@ void MainWindow::showEvent(QShowEvent *event)
 void MainWindow::resizeCharts()
 {
     QSize newSize = ui->tabChart->size();
-    v_chart1->resize(newSize);
-    v_chart2->resize(newSize);
+    chartU->resize(newSize);
+    chartPhaze->resize(newSize);
     qDebug() << "MW Resize() Size w: " << newSize.width() << "h: " << newSize.height();
 }
 
@@ -103,14 +112,15 @@ void MainWindow::updateDataTable(unsigned int num_of_lines1,unsigned int num_of_
     ui->tableWidget->setUpdatesEnabled(false);
     ui->tableWidget->clear();
     ui->tableWidget->setRowCount(0);
-    ui->tableWidget_2->setColumnCount(11);
+    ui->tableWidget->setColumnCount(11);
     QStringList labels;
+    // Fill column names Table1
     labels << tr("i") << tr("Xi")<< tr("hi") << tr("Vi")<< tr("V^i") << tr("Vi-V^i")<< tr("ОЛП") << tr("Деления")<< tr("Удвоения") << tr("Поменять название")<< tr("Поменять название");
     ui->tableWidget->setHorizontalHeaderLabels(labels);
     for (int i=0;i<11;i++){
          ui->tableWidget->horizontalHeader()->resizeSection(i, 80);
     }
-
+    // Fill column names Table2
     ui->tableWidget_2->setUpdatesEnabled(false);
     ui->tableWidget_2->clear();
     ui->tableWidget_2->setColumnCount(11);
@@ -119,8 +129,8 @@ void MainWindow::updateDataTable(unsigned int num_of_lines1,unsigned int num_of_
     for (int i=0;i<11;i++){
          ui->tableWidget_2->horizontalHeader()->resizeSection(i, 80);
     }
-    ui->tableWidget_2->setRowCount(0);
-
+    // Fill data Table1
+    ui->tableWidget->setRowCount(0);
     for (unsigned int i = 0; i < num_of_lines1; i++) {
         int row = ui->tableWidget->rowCount();
         ui->tableWidget->setRowCount(row + 1);
@@ -128,20 +138,22 @@ void MainWindow::updateDataTable(unsigned int num_of_lines1,unsigned int num_of_
         //int temp=answer.second.first.size();
         QTableWidgetItem *item0 = new QTableWidgetItem(QString::number(answer.second.first[i*N].first));
         ui->tableWidget->setItem(row, 0, item0);
-        for(int j=1;j<N;j++){
-            QTableWidgetItem *item0 = new QTableWidgetItem(QString(answer.second.first[i*N+j].second.c_str()));
-            ui->tableWidget->setItem(row, j, item0);
+        for(int col = 1; col < N; col++){
+            QTableWidgetItem *item0 = new QTableWidgetItem(QString(answer.second.first[i*N+col].second.c_str()));
+            ui->tableWidget->setItem(row, col, item0);
         }
     }
+    // Fill data Table2
+    ui->tableWidget_2->setRowCount(0);
     for (unsigned int i = 0; i < num_of_lines2; i++) {
         int row = ui->tableWidget_2->rowCount();
         ui->tableWidget_2->setRowCount(row + 1);
         int N = N_DEF;
         QTableWidgetItem *item0 = new QTableWidgetItem(QString::number(answer.second.second[i*N].first));
         ui->tableWidget_2->setItem(row, 0, item0);
-        for(int j=1;j<N;j++){
-            QTableWidgetItem *item0 = new QTableWidgetItem(QString(answer.second.second[i*N+j].second.c_str()));
-            ui->tableWidget_2->setItem(row, j, item0);
+        for(int col = 1; col < N; col++){
+            QTableWidgetItem *item0 = new QTableWidgetItem(QString(answer.second.second[i*N+col].second.c_str()));
+            ui->tableWidget_2->setItem(row, col, item0);
         }
     }
 
@@ -167,7 +179,7 @@ void MainWindow::on_pbCalculate_clicked()
     inData.Nmax=ui->lineEdit_3->text().toInt();
     inData.h0=ui->lineEdit_4->text().toDouble();
     inData.x0=ui->lineEdit_8->text().toDouble();
-    inData.xT=ui->lineEdit_9->text().toDouble();
+    inData.xT=ui->leX_end->text().toDouble();
 
     double u0=ui->lineEdit_7->text().toDouble();
     double u_0=ui->lineEdit_6->text().toDouble(); //производная в нуле
@@ -209,6 +221,7 @@ void MainWindow::on_pbCalculate_clicked()
     mainCalcTh.start();
     // Timer and controls
     calc100ms = 0;
+    elapsedCalcTime.start();
     timerCalcID = this->startTimer(100);
     setControlState();
 }
@@ -256,6 +269,7 @@ void MainWindow::fillResultsProcess()
     QString MIN_H_1=QString::number(min_h);       //Min_h
     QStringList spravka1;
     spravka1<<ITERS_1<<b_xn_1<<MAX_OLP_1<<DIVS_1<<DOUBLES_1<<MAX_H_1<<MAX_H_x_1<<MIN_H_1<<MIN_H_x_1;
+
     //для справки 2 U'(x)
     QString ITERS_2= QString::number(num_of_lines2-1);//кол-во итераций
     QString b_xn_2 = QString::number(inData.xT-std::stod(answer.second.second[(num_of_lines2-1)*N+1].second));//b-xn
@@ -343,38 +357,42 @@ void MainWindow::timerEvent(QTimerEvent *event)
     Q_UNUSED(event);
     calc100ms++;
     QString sTime;
-    sTime.sprintf("%02d:%03d", (calc100ms*100)/1000, (calc100ms*100)%1000);
-    ui->lbElapsedTSecs->setText("Время: " +sTime);
+    int ms = elapsedCalcTime.elapsed();
+    sTime.sprintf("%02d:%03d", ms / 1000, ms % 1000);
+    ui->lbElapsedTSecs->setText("Время: " + sTime); // sec:ms
     ui->progBar->setValue(calc100ms % (ui->progBar->maximum()));
 }
 
 void MainWindow::on_pbResults_clicked()
 {
-    v_chart1->Title("Зависимость координаты от времени");
-    v_chart2->Title("Фазовый портрет");
-    std::vector<std::pair<double,double>> vec_chart1{}; // u(x)
+    chartU->Title("Зависимость координаты от времени");
+    chartPhaze->Title("Фазовый портрет");
+    std::vector<std::pair<double,double>> vec_chartU{}; // u(x)
     std::vector<std::pair<double,double>> vec_chart1_2{};// u'(x)  не надо пока что
-    std::vector<std::pair<double,double>> vec_chart2{}; // u'(u)
-    unsigned int num_of_lines1=answer.second.first.size()/9;//9 - 11
-    unsigned int num_of_lines2=answer.second.second.size()/9;//9 - 11
-    for(unsigned int i=0;i<num_of_lines1;i++) {
+    std::vector<std::pair<double,double>> vec_chartPhaze{}; // u'(u)
+    unsigned int num_of_lines1=answer.second.first.size()/N_DEF;//9 - 11
+    unsigned int num_of_lines2=answer.second.second.size()/N_DEF;//9 - 11
+    for(unsigned int ln=0;ln<num_of_lines1;ln++) {
         //answer.first.first[i],answer.first.second[i].first;
-        vec_chart1.push_back(std::make_pair(answer.first.first[i],answer.first.second[i][0]));
+        vec_chartU.push_back(std::make_pair(answer.first.first[ln],answer.first.second[ln][0]));
     }
-    for(unsigned int i=0;i<num_of_lines2;i++) {
+//    for(unsigned int i=0;i<num_of_lines2;i++) {
+//        //answer.first.first[i],answer.first.second[i].first;
+//        vec_chart1_2.push_back(std::make_pair(answer.first.first[i],answer.first.second[i][1]));
+//    }
+    for(unsigned int ln=0;ln<num_of_lines2;ln++) {
         //answer.first.first[i],answer.first.second[i].first;
-        vec_chart1_2.push_back(std::make_pair(answer.first.first[i],answer.first.second[i][1]));
+        vec_chartPhaze.push_back(std::make_pair(answer.first.second[ln][0],answer.first.second[ln][1]));
     }
-    for(unsigned int i=0;i<num_of_lines2;i++) {
-        //answer.first.first[i],answer.first.second[i].first;
-        vec_chart2.push_back(std::make_pair(answer.first.second[i][0],answer.first.second[i][1]));
-    }
-    if (flag_for_chart==-1)
+    if (flag_for_chart==-1){
         flag_for_chart=0;
-    else if(flag_for_chart==0)
+    }else if(flag_for_chart==0){
         flag_for_chart=1;
-    v_chart1->make_chart(vec_chart1,flag_for_chart); //ERROR!!!!!!!!!!
-    v_chart2->make_chart(vec_chart2,flag_for_chart); //ERROR!!!!!!!!!!
+    }
+    chartU->axisX->setRange(0.0,  ui->leX_end->text().toDouble());
+    //chartU->axisX->setRange(0.0,  ui->leX_end->text().toDouble()); // todo; Where get min max?
+    chartU->make_chart(vec_chartU,flag_for_chart); //ERROR!!!!!!!!!!
+    chartPhaze->make_chart(vec_chartPhaze,flag_for_chart); //ERROR!!!!!!!!!!
 
     //v_chart1->make_x_y("u","x"); // фигня какая-то выходит
     QString text=" Исходный дифур:\n mU''+kU=F;\n u(x0)=u0; u'(x0)=u'0\n x(нач)<x<x(конеч)\n ";
@@ -385,8 +403,8 @@ void MainWindow::on_pbResults_clicked()
 
 void MainWindow::on_pbClearCharts_clicked()
 {
-    v_chart1->clear();// возможно там что-то неправильно
-    v_chart2->clear();
+    chartU->clear();// возможно там что-то неправильно
+    chartPhaze->clear();
 
     ui->lbElapsedTSecs->setText("Время: 00:000");
 }
