@@ -204,16 +204,17 @@ void MainWindow::on_pbCalculate_clicked()
     double k=ui->lineEdit_10->text().toDouble();
     double f=ui->lineEdit_11->text().toDouble();
     double m=ui->lineEdit_12->text().toDouble();
+    inData.f=f;
     inData.k=k;
     inData.m=m;
-    double F=m*f*9.81; //mgf
 
     // Helper functions lambda functions
     inFunc.f1 = [](double x, std::vector<double> u) { (void)x; return u[1]; };
-    inFunc.f2 = [F, k, m](double x, std::vector<double> u) { (void)x; return (-F/m-k*u[0])/m; };//u(1) уточнить - уточнила
+    //double F=(-1)*m*9.81*f*((u[1]>=0)?1:-1));
+    inFunc.f2 = [f, k, m](double x, std::vector<double> u) { (void)x; return ((-m*9.81*f*((u[1]>=0)?1:-1))/m-k*u[0]/m);};//u(1) уточнить - уточнила
     inFunc.f3 = [](double x, std::vector<double> u) { (void)x; return u[1]; };
     double c=f;//доделать
-    inFunc.f4 = [c, k, m](double x, std::vector<double> u) { (void)x; return (-k*u[0])/m-c*u[1]/m; };
+    inFunc.f4 = [c, k, m](double x, std::vector<double> u) { (void)x; return (-k*u[0])/m+c*((u[1]>=0)?1:-1)*u[1]/m; };
     // Main calculation process
     if(mainCalcTh.isRunning()){
         QMessageBox msgBox;
@@ -257,8 +258,9 @@ void MainWindow::fillResultsProcess()
     double max_p=0;
     for(int i=1;i<num_of_lines1;i++){
         double temp=fabs(std::stod(answer.second.first[i*N+5].second));
-        if(std::stod(answer.second.first[i*N+9].second)>max_p)
-            max_p=fabs(std::stod(answer.second.first[i*N+9].second));
+        double temp_global=fabs(std::stod(answer.second.first[i*N+9].second));
+        if(temp_global>max_p)
+            max_p=temp_global;
         if (temp>max1_olp)
             max1_olp=temp;
         double this_h=std::stod(answer.second.first[i*N+2].second);
@@ -294,8 +296,9 @@ void MainWindow::fillResultsProcess()
     divs=0;
     doubles=0;
     for(int i=1;i<num_of_lines2;i++){
-        if(std::stod(answer.second.second[i*N+9].second)>max_p)
-            max_p=fabs(std::stod(answer.second.second[i*N+9].second));
+        double temp_global=fabs(std::stod(answer.second.second[i*N+9].second));
+        if(temp_global>max_p)
+            max_p=temp_global;
         double temp=fabs(std::stod(answer.second.second[i*N+5].second));
         if (temp>max1_olp)
             max1_olp=temp;
@@ -380,8 +383,22 @@ void MainWindow::timerEvent(QTimerEvent *event)
     ui->lbElapsedTSecs->setText("Время: " + sTime+" c"); // sec:ms
     ui->progBar->setValue(calc100ms % (ui->progBar->maximum()));
 }
-double true_u (double x,double k,double m,std::vector<double> u0){
-    return u0[0]*cos(sqrt(k/m)*x)+u0[1]*sin(sqrt(k/m)*x);
+
+double true_u (double x,double x0,double k,double m,double f_small,std::vector<double> u0){
+    double g=9.81;
+    double F=m*g*f_small;
+    double A=sqrt(k/m);
+    double C1=-u0[1]*sin(A*x0)/A+(u0[0]-F/k)*cos(A*x0);
+    double C2=(u0[0]-F/k)*sin(A*x0)+cos(A*x0)*u0[1]/A;
+    return C1*cos(A*x)+C2*sin(A*x)+F/k;
+}//истинное решение
+double true_u_dif (double x,double x0,double k,double m,double f_small,std::vector<double> u0){
+    double g=9.81;
+    double F=m*g*f_small;
+    double A=sqrt(k/m);
+    double C1=-u0[1]*sin(A*x0)/A+(u0[0]-F/k)*cos(A*x0);
+    double C2=(u0[0]-F/k)*sin(A*x0)+cos(A*x0)*u0[1]/A;
+    return C1*(-1)*A*sin(A*x)+C2*A*cos(A*x);
 }//истинное решение
 int flag_for_chart_true=-1;
 int flag_for_chart_var4=-1;
@@ -391,7 +408,7 @@ void MainWindow::on_pbResults_clicked()
     chartPhaze->Title("Фазовый портрет");
     std::vector<std::pair<double,double>> vec_chartU{}; // u(x)
     std::vector<std::pair<double,double>> vec_chartU_true{}; // u(x) истинное
-    std::vector<std::pair<double,double>> vec_chart1_2{};// u'(x)  не надо пока что
+    std::vector<std::pair<double,double>> vec_chartPhase_true{};// u'(x)  истинное
     std::vector<std::pair<double,double>> vec_chart_var4{}; //u(x) вариант4
     std::vector<std::pair<double,double>> vec_chartPhaze{}; // u'(u)
     unsigned int num_of_lines1=answer.second.first.size()/N_DEF;//9 - 11
@@ -399,7 +416,7 @@ void MainWindow::on_pbResults_clicked()
     for(unsigned int ln=0;ln<num_of_lines1;ln++) {
         //answer.first.first[i],answer.first.second[i].first;
         vec_chartU.push_back(std::make_pair(answer.first.first[ln],answer.first.second[ln][0]));
-        vec_chartU_true.push_back(std::make_pair(answer.first.first[ln], true_u(answer.first.first[ln],inData.k,inData.m,inData.iv)));
+        vec_chartU_true.push_back(std::make_pair(answer.first.first[ln], true_u(answer.first.first[ln],inData.x0,inData.k,inData.m,inData.f,inData.iv)));
     }
 //    for(unsigned int i=0;i<num_of_lines2;i++) {
 //        //answer.first.first[i],answer.first.second[i].first;
@@ -408,6 +425,7 @@ void MainWindow::on_pbResults_clicked()
     for(unsigned int ln=0;ln<num_of_lines2;ln++) {
         //answer.first.first[i],answer.first.second[i].first;
         vec_chartPhaze.push_back(std::make_pair(answer.first.second[ln][0],answer.first.second[ln][1]));
+        vec_chartPhase_true.push_back(std::make_pair(answer.first.second[ln][0],true_u_dif(answer.first.first[ln],inData.x0,inData.k,inData.m,inData.f,inData.iv)));
     }
 
 
@@ -431,6 +449,7 @@ void MainWindow::on_pbResults_clicked()
     chartU->make_chart(vec_chartU_true,flag_for_chart_true);//serias 3
     chartU->make_chart(vec_chart_var4,flag_for_chart_var4);//serias 4
     chartPhaze->make_chart(vec_chartPhaze,flag_for_chart); //ERROR!!!!!!!!!!
+    chartPhaze->make_chart(vec_chartPhase_true,flag_for_chart_true);
 
     //v_chart1->make_x_y("u","x"); // фигня какая-то выходит
     QString text=" Исходный дифур:\n mU''+kU=F;\n u(x0)=u0; u'(x0)=u'0\n x(нач)<x<x(конеч)\n ";

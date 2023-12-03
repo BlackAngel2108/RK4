@@ -73,9 +73,9 @@ View_Chart1::View_Chart1(QWidget *parent)
     scene()->addItem(m_chart);
 
     m_coordX = new QGraphicsSimpleTextItem(m_chart);
-    m_coordX->setText("X: ");
+    //m_coordX->setText("X: ");
     m_coordY = new QGraphicsSimpleTextItem(m_chart);
-    m_coordY->setText("Y: ");
+    //m_coordY->setText("Y: ");
 
     //scene()->setSceneRect(QRect(QPoint(0, 0), this->parentWidget()->size()));
 
@@ -172,8 +172,8 @@ void View_Chart1::resizeEvent(QResizeEvent *event)
 
 void View_Chart1::mouseMoveEvent(QMouseEvent *event)
 {
-    m_coordX->setText(QString("X: %1").arg(m_chart->mapToValue(event->pos()).x()));
-    m_coordY->setText(QString("Y: %1").arg(m_chart->mapToValue(event->pos()).y()));
+    //m_coordX->setText(QString("X: %1").arg(m_chart->mapToValue(event->pos()).x()));
+    //m_coordY->setText(QString("Y: %1").arg(m_chart->mapToValue(event->pos()).y()));
     QGraphicsView::mouseMoveEvent(event);
 }
 

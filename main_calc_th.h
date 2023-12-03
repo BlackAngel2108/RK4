@@ -10,7 +10,7 @@ typedef struct sInputData{
     int Nmax;
     double h0;
     double k;
-    //double f;
+    double f;
     double m;
     //double u0;
     //double u_0;

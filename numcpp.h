@@ -153,7 +153,7 @@ public:
 
     const static std::pair< std::pair<std::vector<double>, std::vector<std::vector<double>>>,
     std::pair<std::vector<std::pair<int,std::string>>,std::vector<std::pair<int,std::string>>>>
-        RK4_system(double x0, double xn, std::vector<double> u0, const std::vector<std::function<double(double, std::vector<double>)>>& f,double m,double k,
+        RK4_system(double x0, double xn, std::vector<double> u0, const std::vector<std::function<double(double, std::vector<double>)>>& f,double m,double k,double f_small,
             double step = 0.005, double precision = 0.001, size_t max_step = 1000000, int dif_step = 0, double eps = 0.01) {
 
         std::vector<std::pair<int,std::string>> line_table1;
@@ -161,11 +161,14 @@ public:
 
 		std::vector<double> x_vals{ x0 };
 		std::vector<std::vector<double>> v_vals{ u0 };
-        //double C1=u0[0];
-        //double C2=u0[1];
+        double g=9.81;
+        double F=m*g*f_small;
+        double A=sqrt(k/m);
+        double C1=-u0[1]*sin(A*x0)/A+(u0[0]-F/k)*cos(A*x0);
+        double C2=(u0[0]-F/k)*sin(A*x0)+cos(A*x0)*u0[1]/A;
 
-        auto u = [k,m,u0](double x){return u0[0]*cos(sqrt(k/m)*x)+u0[1]*sin(sqrt(k/m)*x);};
-        auto u1 = [k,m,u0](double x){return u0[0]*(-1)*sqrt(k/m)*sin(sqrt(k/m)*x)+u0[1]*sqrt(k/m)*cos(sqrt(k/m)*x);};
+        auto u = [A,k,m,u0,C1,C2,F](double x){return C1*cos(A*x)+C2*sin(A*x)+F/k;};
+        auto u1 = [A,k,m,u0,C1,C2](double x){return C1*(-1)*A*sin(A*x)+C2*A*cos(A*x);};
 		double h = step;
 		size_t num_of_steps = 0;
 		size_t divs_1 = 0;
