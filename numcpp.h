@@ -153,7 +153,7 @@ public:
 
     const static std::pair< std::pair<std::vector<double>, std::vector<std::vector<double>>>,
     std::pair<std::vector<std::pair<int,std::string>>,std::vector<std::pair<int,std::string>>>>
-		RK4_system(double x0, double xn, std::vector<double> u0, const std::vector<std::function<double(double, std::vector<double>)>>& f,
+        RK4_system(double x0, double xn, std::vector<double> u0, const std::vector<std::function<double(double, std::vector<double>)>>& f,double m,double k,
             double step = 0.005, double precision = 0.001, size_t max_step = 1000000, int dif_step = 0, double eps = 0.01) {
 
         std::vector<std::pair<int,std::string>> line_table1;
@@ -161,7 +161,10 @@ public:
 
 		std::vector<double> x_vals{ x0 };
 		std::vector<std::vector<double>> v_vals{ u0 };
-
+        //double C1=u0[0];
+        //double C2=u0[1];
+        auto u = [k,m,u0](double x){return u0[0]*cos(sqrt(k/m)*x)+u0[1]*sin(sqrt(k/m)*x);};
+        auto u1 = [k,m,u0](double x){return u0[0]*(-1)*sqrt(k/m)*sin(sqrt(k/m)*x)+u0[1]*sqrt(k/m)*cos(sqrt(k/m)*x);};
 		double h = step;
 		size_t num_of_steps = 0;
 		size_t divs_1 = 0;
@@ -178,8 +181,8 @@ public:
         line_table1.push_back(std::make_pair(0,"-"));
         line_table1.push_back(std::make_pair(0,std::to_string(divs_1)));
         line_table1.push_back(std::make_pair(0,std::to_string(doubles_1)));
-//        line_table1.push_back(std::make_pair(iters,std::to_string(u(x0))));
-//        line_table1.push_back(std::make_pair(iters,std::to_string(abs(u(x0))-u0)));
+        line_table1.push_back(std::make_pair(0,std::to_string(u(x0))));
+        line_table1.push_back(std::make_pair(0,std::to_string(fabs(u(x0)-u0[0]))));
 
         line_table2.push_back(std::make_pair(0,std::to_string(num_of_steps)));
         line_table2.push_back(std::make_pair(0,std::to_string(x0)));
@@ -190,8 +193,8 @@ public:
         line_table2.push_back(std::make_pair(0,"-"));
         line_table2.push_back(std::make_pair(0,std::to_string(divs_2)));
         line_table2.push_back(std::make_pair(0,std::to_string(doubles_2)));
-//        line_table2.push_back(std::make_pair(iters,std::to_string(u(x0))));
-//        line_table2.push_back(std::make_pair(iters,std::to_string(abs(u(x0))-u0)));
+        line_table2.push_back(std::make_pair(0,std::to_string(u1(x0))));
+        line_table2.push_back(std::make_pair(0,std::to_string(fabs(u1(x0)-u0[1]))));
         num_of_steps++;
 
 
@@ -249,8 +252,8 @@ public:
             line_table1.push_back(std::make_pair(num_of_steps,std::to_string(local_p_1)));
             line_table1.push_back(std::make_pair(num_of_steps,std::to_string(divs_1)));
             line_table1.push_back(std::make_pair(num_of_steps,std::to_string(doubles_1)));
-//            line_table1.push_back(std::make_pair(num_of_steps,std::to_string(u(x))));
-//            line_table1.push_back(std::make_pair(num_of_steps,std::to_string(abs(u(x))-v)));
+            line_table1.push_back(std::make_pair(num_of_steps,std::to_string(u(x))));
+            line_table1.push_back(std::make_pair(num_of_steps,std::to_string(fabs(u(x)-v[0]))));
 
 
             line_table2.push_back(std::make_pair(num_of_steps,std::to_string(num_of_steps)));
@@ -262,8 +265,12 @@ public:
             line_table2.push_back(std::make_pair(num_of_steps,std::to_string(local_p_2)));
             line_table2.push_back(std::make_pair(num_of_steps,std::to_string(divs_2)));
             line_table2.push_back(std::make_pair(num_of_steps,std::to_string(doubles_2)));
-//            line_table2.push_back(std::make_pair(num_of_steps,std::to_string(u(x))));
-//            line_table2.push_back(std::make_pair(num_of_steps,std::to_string(abs(u(x))-v)));
+            line_table2.push_back(std::make_pair(num_of_steps,std::to_string(u1(x))));
+            double test1=u1(x);
+            double test2=v[1];
+            double test3=u1(x)-v[1];
+            double test4=fabs(u1(x)-v[1]);
+            line_table2.push_back(std::make_pair(num_of_steps,std::to_string(fabs(u1(x)-v[1]))));
 
 
 

@@ -7,7 +7,7 @@
 #include "main_calc_th.h"
 #include <QTime>
 
-#define N_DEF (9) // Надо заменить на 11 когда будет финальное решение
+#define N_DEF (11) // Надо заменить на 11 когда будет финальное решение
 
 namespace Ui {
 

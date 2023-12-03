@@ -15,7 +15,7 @@ std::pair<std::pair<std::vector<double>, std::vector<std::vector<double> > >, st
 void MainCalcTh::run()
 {
     answer = numcpp::RK4_system(inD->x0, inD->xT, inD->iv,
-                                { inF->f1, inF->f2 },
+                                { inF->f1, inF->f2}, inD->m, inD->k,
                                 inD->h0, inD->precision,
                                 inD->Nmax, inD->dif_step,  inD->epsilon); //с контролем шага эта функция глушит программу
     emit resultReady();

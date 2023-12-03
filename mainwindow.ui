@@ -520,7 +520,7 @@
              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Задача&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
             <property name="text">
-             <string>Задача:</string>
+             <string>Помощь</string>
             </property>
             <property name="indent">
              <number>5</number>
@@ -541,14 +541,17 @@
             <property name="editable">
              <bool>false</bool>
             </property>
+            <property name="currentText">
+             <string>Основное окно</string>
+            </property>
             <item>
              <property name="text">
-              <string>Тестовая</string>
+              <string>Основное окно</string>
              </property>
             </item>
             <item>
              <property name="text">
-              <string>Основная</string>
+              <string>Постановка задачи</string>
              </property>
             </item>
            </widget>
@@ -577,7 +580,7 @@
            </sizepolicy>
           </property>
           <property name="text">
-           <string>Вывести результаты</string>
+           <string>Вывести уравнение</string>
           </property>
          </widget>
         </item>
@@ -645,7 +648,7 @@
                </sizepolicy>
               </property>
               <property name="text">
-               <string>Время: 00:000</string>
+               <string>Время: 00:000 мс</string>
               </property>
              </widget>
             </item>
@@ -813,7 +816,7 @@
      <x>0</x>
      <y>0</y>
      <width>884</width>
-     <height>23</height>
+     <height>17</height>
     </rect>
    </property>
   </widget>

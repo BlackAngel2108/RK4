@@ -9,9 +9,9 @@ typedef struct sInputData{
     double precision;
     int Nmax;
     double h0;
-    //double k;
+    double k;
     //double f;
-    //double m;
+    double m;
     //double u0;
     //double u_0;
     double x0;
@@ -23,6 +23,8 @@ typedef struct sInputData{
 typedef struct sInputFunc{
     std::function<double(double, std::vector<double>)> f1;
     std::function<double(double, std::vector<double>)> f2;
+    //std::function <double(double)>u = [k,m,iv](double x){return iv[0]*cos(sqrt(k/m)*x)+iv[1]*sin(sqrt(k/m)*x);};
+    //std::function< double(double x)>u;
 } InputFunc;
 
 class MainCalcTh : public QThread

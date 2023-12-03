@@ -34,7 +34,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->tableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
     ui->tableWidget->setColumnCount(11);
     QStringList labels;
-    labels << tr("i") << tr("Xi")<< tr("hi") << tr("Vi")<< tr("V^i") << tr("Vi-V^i")<< tr("ОЛП") << tr("Деления")<< tr("Удвоения") << tr("Поменять название")<< tr("Поменять название");
+    labels << tr("i") << tr("Xi")<< tr("hi") << tr("Vi")<< tr("V^i") << tr("Vi-V^i")<< tr("ОЛП") << tr("Деления")<< tr("Удвоения") << tr("Ui")<< tr("Глоб. П.");
     ui->tableWidget->setHorizontalHeaderLabels(labels);
     //ui->tableWidget->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
     for (int i=0;i<11;i++){
@@ -115,7 +115,7 @@ void MainWindow::updateDataTable(unsigned int num_of_lines1,unsigned int num_of_
     ui->tableWidget->setColumnCount(11);
     QStringList labels;
     // Fill column names Table1
-    labels << tr("i") << tr("Xi")<< tr("hi") << tr("Vi")<< tr("V^i") << tr("Vi-V^i")<< tr("ОЛП") << tr("Деления")<< tr("Удвоения") << tr("Поменять название")<< tr("Поменять название");
+    labels << tr("i") << tr("Xi")<< tr("hi") << tr("Vi")<< tr("V^i") << tr("Vi-V^i")<< tr("ОЛП") << tr("Деления")<< tr("Удвоения") << tr("Ui")<< tr("Глоб. п.");
     ui->tableWidget->setHorizontalHeaderLabels(labels);
     for (int i=0;i<11;i++){
          ui->tableWidget->horizontalHeader()->resizeSection(i, 80);
@@ -181,7 +181,7 @@ void MainWindow::on_pbCalculate_clicked()
     inData.x0=ui->lineEdit_8->text().toDouble();
     inData.xT=ui->leX_end->text().toDouble();
 
-    double u0=ui->lineEdit_7->text().toDouble();
+    double u0=ui->lineEdit_7->text().toDouble()/100.0;
     double u_0=ui->lineEdit_6->text().toDouble(); //производная в нуле
     inData.iv = { u0, u_0 };
 
@@ -196,10 +196,11 @@ void MainWindow::on_pbCalculate_clicked()
     }
 
     // Parameters for functions
-    double k=ui->lineEdit_10->text().toDouble();
+    double k=ui->lineEdit_10->text().toDouble()*100;
     double f=ui->lineEdit_11->text().toDouble();
     double m=ui->lineEdit_12->text().toDouble();
-
+    inData.k=k;
+    inData.m=m;
     double F=m*f*9.81; //mgf
 
     // Helper functions lambda functions
@@ -246,8 +247,11 @@ void MainWindow::fillResultsProcess()
     double min_h=1000000;
     int divs=0;
     int doubles=0;
+    double max_p=0;
     for(int i=1;i<num_of_lines1;i++){
-        double temp=abs(std::stod(answer.second.first[i*N+5].second));
+        double temp=fabs(std::stod(answer.second.first[i*N+5].second));
+        if(std::stod(answer.second.first[i*N+9].second)>max_p)
+            max_p=fabs(std::stod(answer.second.first[i*N+9].second));
         if (temp>max1_olp)
             max1_olp=temp;
         double this_h=std::stod(answer.second.first[i*N+2].second);
@@ -262,13 +266,14 @@ void MainWindow::fillResultsProcess()
         divs+=std::stoi(answer.second.first[i*N+6].second);
         doubles+=std::stoi(answer.second.first[i*N+7].second);
     }
+    QString MAX_P_1=QString::number(max_p);//Макс Погрешность
     QString MAX_OLP_1= QString::number(max1_olp); //Макс ОЛП
     QString DIVS_1=QString::number(divs);   //делений
     QString DOUBLES_1 =QString::number(doubles);   //удвоений
     QString MAX_H_1=QString::number(max_h);     //Max_h
     QString MIN_H_1=QString::number(min_h);       //Min_h
     QStringList spravka1;
-    spravka1<<ITERS_1<<b_xn_1<<MAX_OLP_1<<DIVS_1<<DOUBLES_1<<MAX_H_1<<MAX_H_x_1<<MIN_H_1<<MIN_H_x_1;
+    spravka1<<ITERS_1<<b_xn_1<<MAX_OLP_1<<DIVS_1<<DOUBLES_1<<MAX_H_1<<MAX_H_x_1<<MIN_H_1<<MIN_H_x_1<<MAX_P_1;
 
     //для справки 2 U'(x)
     QString ITERS_2= QString::number(num_of_lines2-1);//кол-во итераций
@@ -276,12 +281,15 @@ void MainWindow::fillResultsProcess()
     QString MAX_H_x_2;          //x
     QString MIN_H_x_2;        //x
     max1_olp=0;
+    max_p=0;
     max_h=0;
     min_h=1000000;
     divs=0;
     doubles=0;
     for(int i=1;i<num_of_lines2;i++){
-        double temp=abs(std::stod(answer.second.second[i*N+5].second));
+        if(std::stod(answer.second.second[i*N+9].second)>max_p)
+            max_p=fabs(std::stod(answer.second.second[i*N+9].second));
+        double temp=fabs(std::stod(answer.second.second[i*N+5].second));
         if (temp>max1_olp)
             max1_olp=temp;
         double this_h=std::stod(answer.second.second[i*N+2].second);
@@ -296,13 +304,14 @@ void MainWindow::fillResultsProcess()
         divs+=std::stoi(answer.second.second[i*N+6].second);
         doubles+=std::stoi(answer.second.second[i*N+7].second);
     }
+    QString MAX_P_2=QString::number(max_p);//Макс Погрешность
     QString MAX_OLP_2= QString::number(max1_olp); //Макс ОЛП
     QString DIVS_2=QString::number(divs);   //делений
     QString DOUBLES_2 =QString::number(doubles);   //удвоений
     QString MAX_H_2=QString::number(max_h);     //Max_h
     QString MIN_H_2=QString::number(min_h);       //Min_h
     QStringList spravka2;
-    spravka2<<ITERS_2<<b_xn_2<<MAX_OLP_2<<DIVS_2<<DOUBLES_2<<MAX_H_2<<MAX_H_x_2<<MIN_H_2<<MIN_H_x_2;
+    spravka2<<ITERS_2<<b_xn_2<<MAX_OLP_2<<DIVS_2<<DOUBLES_2<<MAX_H_2<<MAX_H_x_2<<MIN_H_2<<MIN_H_x_2<<MAX_P_2;
 
     QString for_spravka_1="Итераций:  "+spravka1[0]+"\n";
     for_spravka_1+= "xT - xn:  "+spravka1[1]+"\n";
@@ -313,6 +322,7 @@ void MainWindow::fillResultsProcess()
     for_spravka_1+= "x, где достигается Макс h: "+spravka1[6]+"\n";
     for_spravka_1+= "Мин h:  "+spravka1[7]+"\n";
     for_spravka_1+= "x, где достигается Мин h:  "+spravka1[8]+"\n";
+    for_spravka_1+= "Макс глоб. погрешность:  "+spravka1[9]+"\n";
     ui->textEdit->setText(for_spravka_1);
 
     QString for_spravka_2="Итераций:  "+spravka2[0]+"\n";
@@ -324,6 +334,7 @@ void MainWindow::fillResultsProcess()
     for_spravka_2+= "x, где достигается Макс h: "+spravka2[6]+"\n";
     for_spravka_2+= "Мин h:  "+spravka2[7]+"\n";
     for_spravka_2+= "x, где достигается Мин h:  "+spravka2[8]+"\n";
+    for_spravka_2+= "Макс глоб. погрешность:  "+spravka2[9]+"\n";
     ui->textEdit_2->setText(for_spravka_2);
 
     //тут типа должно быть обновление графиков
@@ -359,7 +370,7 @@ void MainWindow::timerEvent(QTimerEvent *event)
     QString sTime;
     int ms = elapsedCalcTime.elapsed();
     sTime.sprintf("%02d:%03d", ms / 1000, ms % 1000);
-    ui->lbElapsedTSecs->setText("Время: " + sTime); // sec:ms
+    ui->lbElapsedTSecs->setText("Время: " + sTime+" mc"); // sec:ms
     ui->progBar->setValue(calc100ms % (ui->progBar->maximum()));
 }
 
@@ -389,15 +400,19 @@ void MainWindow::on_pbResults_clicked()
     }else if(flag_for_chart==0){
         flag_for_chart=1;
     }
-    chartU->axisX->setRange(0.0,  ui->leX_end->text().toDouble());
-    //chartU->axisX->setRange(0.0,  ui->leX_end->text().toDouble()); // todo; Where get min max?
+    chartU->axisX->setRange(ui->lineEdit_8->text().toDouble(),  ui->leX_end->text().toDouble());
+    chartU->axisY->setRange(-0.1,  0.1);
+    chartPhaze->axisX->setRange(-10.0,  10.0);
+    chartPhaze->axisY->setRange(-20.0,  20.0);
+    //chartU->axisX-сто>setRange(0.0,  ui->leX_end->text().toDouble()); // todo; Where get min max?
     chartU->make_chart(vec_chartU,flag_for_chart); //ERROR!!!!!!!!!!
     chartPhaze->make_chart(vec_chartPhaze,flag_for_chart); //ERROR!!!!!!!!!!
 
     //v_chart1->make_x_y("u","x"); // фигня какая-то выходит
     QString text=" Исходный дифур:\n mU''+kU=F;\n u(x0)=u0; u'(x0)=u'0\n x(нач)<x<x(конеч)\n ";
-    QString text2=" Точное решение";
-    QString all=text+text2;
+    QString text3="Точное решение:\n A=sqrt(k/m)\n ";
+    QString text2="U(x)=u0*cos(A*x)+u'0*sin(A*x)\n U'(x)=-u0*A*sin(A*x)+u'0*A*cos(A*x)";
+    QString all=text+text3+text2;
     ui->teInfo->setText(all);
 }
 
@@ -406,6 +421,6 @@ void MainWindow::on_pbClearCharts_clicked()
     chartU->clear();// возможно там что-то неправильно
     chartPhaze->clear();
 
-    ui->lbElapsedTSecs->setText("Время: 00:000");
+    ui->lbElapsedTSecs->setText("Время: 00:000 мс");
 }
 

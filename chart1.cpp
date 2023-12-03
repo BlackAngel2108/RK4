@@ -123,7 +123,7 @@ void View_Chart1::make_chart(std::vector<std::pair<double,double>> &v,bool flag)
     axisX->setTickCount(10);
     axisX->setLabelFormat("%.2f");
 
-    axisY->setRange(-10, 10);
+    //axisY->setRange(-10, 10);
     axisY->setTickCount(10);
     axisY->setLabelFormat("%.2f");
 }
