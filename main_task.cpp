@@ -6,6 +6,10 @@ main_task::main_task(QWidget *parent) :
     ui(new Ui::main_task)
 {
     ui->setupUi(this);
+    QPixmap pix(":/img/task.png");
+    int w= ui->image->width();
+    int h= ui->image->height();
+    ui->image->setPixmap(pix.scaled(w,h,Qt::KeepAspectRatio));
 }
 
 main_task::~main_task()

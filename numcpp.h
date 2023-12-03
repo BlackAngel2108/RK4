@@ -163,6 +163,7 @@ public:
 		std::vector<std::vector<double>> v_vals{ u0 };
         //double C1=u0[0];
         //double C2=u0[1];
+
         auto u = [k,m,u0](double x){return u0[0]*cos(sqrt(k/m)*x)+u0[1]*sin(sqrt(k/m)*x);};
         auto u1 = [k,m,u0](double x){return u0[0]*(-1)*sqrt(k/m)*sin(sqrt(k/m)*x)+u0[1]*sqrt(k/m)*cos(sqrt(k/m)*x);};
 		double h = step;

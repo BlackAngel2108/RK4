@@ -10,6 +10,7 @@
 #include <QDebug>
 #include <QMessageBox>
 #include <QTime>
+#include <QPixmap>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -26,6 +27,8 @@ MainWindow::MainWindow(QWidget *parent) :
     //v_chart2->setAxisNames("U", "U'");
     chartPhaze->axisX->setTitleText("Axis U");
     chartPhaze->axisY->setTitleText("Axis U '");
+
+
 
 
     // Insert QTableWidget
@@ -424,3 +427,13 @@ void MainWindow::on_pbClearCharts_clicked()
     ui->lbElapsedTSecs->setText("Время: 00:000 мс");
 }
 
+
+void MainWindow::on_comboBox_activated(int index)
+{
+
+    if (index==1){
+        main_task window2;
+        window2.setModal(true);
+        window2.exec();
+    }
+}
