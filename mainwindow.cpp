@@ -104,6 +104,8 @@ void MainWindow::resizeEvent(QResizeEvent *event)
  */
 std::pair< std::pair<std::vector<double>, std::vector<std::vector<double>>>,
     std::pair<std::vector<std::pair<int,std::string>>,std::vector<std::pair<int,std::string>>>> answer;
+std::pair< std::pair<std::vector<double>, std::vector<std::vector<double>>>,
+    std::pair<std::vector<std::pair<int,std::string>>,std::vector<std::pair<int,std::string>>>> answer2;
 
 /**
  * @brief MainWindow::updateDataTable Show Table data
@@ -184,7 +186,7 @@ void MainWindow::on_pbCalculate_clicked()
     inData.x0=ui->lineEdit_8->text().toDouble();
     inData.xT=ui->leX_end->text().toDouble();
 
-    double u0=ui->lineEdit_7->text().toDouble()/100.0;
+    double u0=ui->lineEdit_7->text().toDouble();
     double u_0=ui->lineEdit_6->text().toDouble(); //производная в нуле
     inData.iv = { u0, u_0 };
 
@@ -199,7 +201,7 @@ void MainWindow::on_pbCalculate_clicked()
     }
 
     // Parameters for functions
-    double k=ui->lineEdit_10->text().toDouble()*100;
+    double k=ui->lineEdit_10->text().toDouble();
     double f=ui->lineEdit_11->text().toDouble();
     double m=ui->lineEdit_12->text().toDouble();
     inData.k=k;
@@ -209,7 +211,9 @@ void MainWindow::on_pbCalculate_clicked()
     // Helper functions lambda functions
     inFunc.f1 = [](double x, std::vector<double> u) { (void)x; return u[1]; };
     inFunc.f2 = [F, k, m](double x, std::vector<double> u) { (void)x; return (-F/m-k*u[0])/m; };//u(1) уточнить - уточнила
-
+    inFunc.f3 = [](double x, std::vector<double> u) { (void)x; return u[1]; };
+    double c=f;//доделать
+    inFunc.f4 = [c, k, m](double x, std::vector<double> u) { (void)x; return (-k*u[0])/m-c*u[1]/m; };
     // Main calculation process
     if(mainCalcTh.isRunning()){
         QMessageBox msgBox;
@@ -237,7 +241,7 @@ void MainWindow::fillResultsProcess()
     //emit evClearAll();
 
     answer = mainCalcTh.get_answer();
-
+    answer2 = mainCalcTh.get_answer2();
     int num_of_lines1=answer.second.first.size()/N; //9 - 11
     int num_of_lines2=answer.second.second.size()/N;//9 - 11
     // Show results U(x)
@@ -373,22 +377,29 @@ void MainWindow::timerEvent(QTimerEvent *event)
     QString sTime;
     int ms = elapsedCalcTime.elapsed();
     sTime.sprintf("%02d:%03d", ms / 1000, ms % 1000);
-    ui->lbElapsedTSecs->setText("Время: " + sTime+" mc"); // sec:ms
+    ui->lbElapsedTSecs->setText("Время: " + sTime+" c"); // sec:ms
     ui->progBar->setValue(calc100ms % (ui->progBar->maximum()));
 }
-
+double true_u (double x,double k,double m,std::vector<double> u0){
+    return u0[0]*cos(sqrt(k/m)*x)+u0[1]*sin(sqrt(k/m)*x);
+}//истинное решение
+int flag_for_chart_true=-1;
+int flag_for_chart_var4=-1;
 void MainWindow::on_pbResults_clicked()
 {
     chartU->Title("Зависимость координаты от времени");
     chartPhaze->Title("Фазовый портрет");
     std::vector<std::pair<double,double>> vec_chartU{}; // u(x)
+    std::vector<std::pair<double,double>> vec_chartU_true{}; // u(x) истинное
     std::vector<std::pair<double,double>> vec_chart1_2{};// u'(x)  не надо пока что
+    std::vector<std::pair<double,double>> vec_chart_var4{}; //u(x) вариант4
     std::vector<std::pair<double,double>> vec_chartPhaze{}; // u'(u)
     unsigned int num_of_lines1=answer.second.first.size()/N_DEF;//9 - 11
     unsigned int num_of_lines2=answer.second.second.size()/N_DEF;//9 - 11
     for(unsigned int ln=0;ln<num_of_lines1;ln++) {
         //answer.first.first[i],answer.first.second[i].first;
         vec_chartU.push_back(std::make_pair(answer.first.first[ln],answer.first.second[ln][0]));
+        vec_chartU_true.push_back(std::make_pair(answer.first.first[ln], true_u(answer.first.first[ln],inData.k,inData.m,inData.iv)));
     }
 //    for(unsigned int i=0;i<num_of_lines2;i++) {
 //        //answer.first.first[i],answer.first.second[i].first;
@@ -398,17 +409,27 @@ void MainWindow::on_pbResults_clicked()
         //answer.first.first[i],answer.first.second[i].first;
         vec_chartPhaze.push_back(std::make_pair(answer.first.second[ln][0],answer.first.second[ln][1]));
     }
+
+
+    unsigned int num_of_lines_var4=answer2.second.first.size()/N_DEF;
+    for(unsigned int ln=0;ln<num_of_lines1;ln++) {
+        vec_chart_var4.push_back(std::make_pair(answer.first.first[ln],answer.first.second[ln][0]));
+    }
+
+
     if (flag_for_chart==-1){
         flag_for_chart=0;
     }else if(flag_for_chart==0){
         flag_for_chart=1;
     }
     chartU->axisX->setRange(ui->lineEdit_8->text().toDouble(),  ui->leX_end->text().toDouble());
-    chartU->axisY->setRange(-0.1,  0.1);
+    chartU->axisY->setRange(-10,  10);
     chartPhaze->axisX->setRange(-10.0,  10.0);
-    chartPhaze->axisY->setRange(-20.0,  20.0);
+    chartPhaze->axisY->setRange(-30.0,  30.0);
     //chartU->axisX-сто>setRange(0.0,  ui->leX_end->text().toDouble()); // todo; Where get min max?
     chartU->make_chart(vec_chartU,flag_for_chart); //ERROR!!!!!!!!!!
+    chartU->make_chart(vec_chartU_true,flag_for_chart_true);//serias 3
+    chartU->make_chart(vec_chart_var4,flag_for_chart_var4);//serias 4
     chartPhaze->make_chart(vec_chartPhaze,flag_for_chart); //ERROR!!!!!!!!!!
 
     //v_chart1->make_x_y("u","x"); // фигня какая-то выходит
@@ -424,7 +445,7 @@ void MainWindow::on_pbClearCharts_clicked()
     chartU->clear();// возможно там что-то неправильно
     chartPhaze->clear();
 
-    ui->lbElapsedTSecs->setText("Время: 00:000 мс");
+    ui->lbElapsedTSecs->setText("Время: 00:000 с");
 }
 
 
@@ -435,5 +456,27 @@ void MainWindow::on_comboBox_activated(int index)
         main_task window2;
         window2.setModal(true);
         window2.exec();
+    }
+}
+
+
+
+void MainWindow::on_check_var4_stateChanged(int arg1)
+{
+    if(arg1){
+        flag_for_chart_var4=4;
+    }
+    else {
+        flag_for_chart_var4=-1;
+    }
+}
+
+void MainWindow::on_check_true_stateChanged(int arg1)
+{
+    if(arg1){
+            flag_for_chart_true=3;
+    }
+    else {
+        flag_for_chart_true=-1;
     }
 }

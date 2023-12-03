@@ -23,6 +23,8 @@ typedef struct sInputData{
 typedef struct sInputFunc{
     std::function<double(double, std::vector<double>)> f1;
     std::function<double(double, std::vector<double>)> f2;
+    std::function<double(double, std::vector<double>)> f3;
+    std::function<double(double, std::vector<double>)> f4;
     //std::function <double(double)>u = [k,m,iv](double x){return iv[0]*cos(sqrt(k/m)*x)+iv[1]*sin(sqrt(k/m)*x);};
     //std::function< double(double x)>u;
 } InputFunc;
@@ -36,12 +38,16 @@ private:
 
     std::pair< std::pair<std::vector<double>, std::vector<std::vector<double>>>,
         std::pair<std::vector<std::pair<int,std::string>>,std::vector<std::pair<int,std::string>>>> answer;
+    std::pair< std::pair<std::vector<double>, std::vector<std::vector<double>>>,
+        std::pair<std::vector<std::pair<int,std::string>>,std::vector<std::pair<int,std::string>>>> answer2;
 public:   
     MainCalcTh(){}
     void setInputData(InputData *inData, InputFunc *inFunc);
 
     std::pair< std::pair<std::vector<double>, std::vector<std::vector<double>>>,
         std::pair<std::vector<std::pair<int,std::string>>,std::vector<std::pair<int,std::string>>>> &get_answer(void);
+    std::pair< std::pair<std::vector<double>, std::vector<std::vector<double>>>,
+        std::pair<std::vector<std::pair<int,std::string>>,std::vector<std::pair<int,std::string>>>> &get_answer2(void);
 protected:
     void run();
 signals:

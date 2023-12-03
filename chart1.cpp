@@ -56,9 +56,13 @@ View_Chart1::View_Chart1(QWidget *parent)
 
     series = new QLineSeries;
     series2 = new QLineSeries;
+    series3 = new QLineSeries;
+    series4 = new QLineSeries;
 
     m_chart->addSeries(series);
     m_chart->addSeries(series2);
+    m_chart->addSeries(series3);
+    m_chart->addSeries(series4);
 
     axisX = new QValueAxis;
     axisY = new QValueAxis;
@@ -93,7 +97,7 @@ void View_Chart1::make_x_y(QString strx, QString stry){
 void View_Chart1::Title(QString str){
     m_chart->setTitle(str);
 }
-void View_Chart1::make_chart(std::vector<std::pair<double,double>> &v,bool flag){
+void View_Chart1::make_chart(std::vector<std::pair<double,double>> &v,int flag){
 
 
     if(flag==0){
@@ -117,6 +121,28 @@ void View_Chart1::make_chart(std::vector<std::pair<double,double>> &v,bool flag)
         m_chart->addSeries(series2);
         m_chart->setAxisX(axisX, series2);
         m_chart->setAxisY(axisY, series2);
+    }
+    if(flag==3){
+        m_chart->removeSeries(series3);
+        series3->clear();
+        int n=v.size();
+        for(int i=0;i<n;i++){
+            series3->append(v[i].first, v[i].second);
+        }
+        m_chart->addSeries(series3);
+        m_chart->setAxisX(axisX, series3);
+        m_chart->setAxisY(axisY, series3);
+    }
+    if(flag==4){
+        m_chart->removeSeries(series4);
+        series4->clear();
+        int n=v.size();
+        for(int i=0;i<n;i++){
+            series4->append(v[i].first, v[i].second);
+        }
+        m_chart->addSeries(series4);
+        m_chart->setAxisX(axisX, series4);
+        m_chart->setAxisY(axisY, series4);
     }
 
     //axisX->setRange(0, 20.5);
@@ -154,6 +180,8 @@ void View_Chart1::mouseMoveEvent(QMouseEvent *event)
 void View_Chart1::clear(){
     series->clear();
     series2->clear();
+    series3->clear();
+    series4->clear();
     //m_chart->series().removeFirst();
 }
 

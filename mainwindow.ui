@@ -70,7 +70,7 @@
              </sizepolicy>
             </property>
             <property name="text">
-             <string>U(0)    </string>
+             <string>U(0) [см]    </string>
             </property>
            </widget>
           </item>
@@ -96,7 +96,7 @@
              </sizepolicy>
             </property>
             <property name="text">
-             <string>   U'(0)   </string>
+             <string>   U'(0) [см/с]   </string>
             </property>
            </widget>
           </item>
@@ -129,7 +129,7 @@
              </sizepolicy>
             </property>
             <property name="text">
-             <string>x(нач)</string>
+             <string>x(нач) [c]   </string>
             </property>
            </widget>
           </item>
@@ -155,7 +155,7 @@
              </sizepolicy>
             </property>
             <property name="text">
-             <string>x(конеч)</string>
+             <string>   x(конеч) [c] </string>
             </property>
            </widget>
           </item>
@@ -194,7 +194,7 @@
              </sizepolicy>
             </property>
             <property name="text">
-             <string> Параметр K (жесткость пружины)  </string>
+             <string> Параметр K (жесткость пружины) [H/см]  </string>
             </property>
            </widget>
           </item>
@@ -246,7 +246,7 @@
              </sizepolicy>
             </property>
             <property name="text">
-             <string>Параметр m (масса груза)                </string>
+             <string>Параметр m (масса груза) [кг]                </string>
             </property>
            </widget>
           </item>
@@ -484,7 +484,7 @@
        </spacer>
       </item>
       <item>
-       <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0,0,0,0,0">
+       <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0,0,0,0,0,0">
         <property name="spacing">
          <number>5</number>
         </property>
@@ -648,11 +648,29 @@
                </sizepolicy>
               </property>
               <property name="text">
-               <string>Время: 00:000 мс</string>
+               <string>Время: 00:000 с</string>
               </property>
              </widget>
             </item>
            </layout>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_3">
+          <item>
+           <widget class="QCheckBox" name="check_true">
+            <property name="text">
+             <string>Истинное решение</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="check_var4">
+            <property name="text">
+             <string>Вариант 4</string>
+            </property>
+           </widget>
           </item>
          </layout>
         </item>
@@ -741,7 +759,7 @@
            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;U0=1&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
           </property>
           <property name="currentIndex">
-           <number>0</number>
+           <number>1</number>
           </property>
           <widget class="QWidget" name="tab_1">
            <attribute name="title">

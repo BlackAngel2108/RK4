@@ -57,9 +57,10 @@ public:
     QChart *m_chart;
     QLineSeries *series;
     QLineSeries *series2;
-
+    QLineSeries *series3;
+    QLineSeries *series4;
     void Title(QString);
-    void make_chart(std::vector<std::pair<double,double>> &v,bool);
+    void make_chart(std::vector<std::pair<double,double>> &v,int);
     void make_x_y(QString, QString);
     void clear();
     void setAxisNames(QString xName, QString yName);

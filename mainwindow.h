@@ -57,6 +57,12 @@ private slots:
 
     void on_comboBox_activated(int index);
 
+    void on_checkBox_2_stateChanged(int arg1);
+
+    void on_check_var4_stateChanged(int arg1);
+
+    void on_check_true_stateChanged(int arg1);
+
 private:
     Ui::MainWindow *ui;
 signals:
