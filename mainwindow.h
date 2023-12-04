@@ -7,7 +7,7 @@
 #include "main_calc_th.h"
 #include <QTime>
 
-#define N_DEF (11) // Надо заменить на 11 когда будет финальное решение
+#define N_DEF (9) // Надо заменить на 11 когда будет финальное решение
 
 namespace Ui {
 
@@ -61,7 +61,7 @@ private slots:
 
     void on_check_var4_stateChanged(int arg1);
 
-    void on_check_true_stateChanged(int arg1);
+    //void on_check_true_stateChanged(int arg1);
 
 private:
     Ui::MainWindow *ui;

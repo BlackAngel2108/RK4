@@ -659,13 +659,6 @@
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout_3">
           <item>
-           <widget class="QCheckBox" name="check_true">
-            <property name="text">
-             <string>Истинное решение</string>
-            </property>
-           </widget>
-          </item>
-          <item>
            <widget class="QCheckBox" name="check_var4">
             <property name="text">
              <string>Вариант 4</string>

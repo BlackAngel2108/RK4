@@ -17,6 +17,7 @@ typedef struct sInputData{
     double x0;
     double xT;
     bool dif_step;
+    double MAX_SPEED;
     std::vector<double> iv;
 } InputData;
 
