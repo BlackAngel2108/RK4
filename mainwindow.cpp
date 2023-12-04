@@ -214,7 +214,7 @@ void MainWindow::on_pbCalculate_clicked()
     inFunc.f2 = [f, k, m](double x, std::vector<double> u) { (void)x; return ((-m*9.81*f*((u[1]>=0)?1:-1))/m-k*u[0]/m);};//u(1) уточнить - уточнила
     inFunc.f3 = [](double x, std::vector<double> u) { (void)x; return u[1]; };
     double c=f;//доделать
-    inFunc.f4 = [c, k, m](double x, std::vector<double> u) { (void)x; return ((-k*u[0])/m+c*((u[1]>=0)?1:-1)*u[1]/m); };
+    inFunc.f4 = [c, k, m](double x, std::vector<double> u) { (void)x; return ((-k*u[0])/m-c*u[1]/m); };
     // Main calculation process
     if(mainCalcTh.isRunning()){
         QMessageBox msgBox;
