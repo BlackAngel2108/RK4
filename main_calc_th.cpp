@@ -7,11 +7,11 @@ void MainCalcTh::setInputData(InputData *inData, InputFunc *inFunc)
     inF = inFunc;
 }
 
-std::pair<std::pair<std::vector<double>, std::vector<std::vector<double> > >, std::pair<std::vector<std::pair<int, std::string> >, std::vector<std::pair<int, std::string> > > > &MainCalcTh::get_answer()
+std::pair<std::pair<std::vector<double>, std::vector<std::vector<double> > >, std::pair<std::vector<std::pair<int, double> >, std::vector<std::pair<int, double> > > > &MainCalcTh::get_answer()
 {
     return answer;
 }
-std::pair<std::pair<std::vector<double>, std::vector<std::vector<double> > >, std::pair<std::vector<std::pair<int, std::string> >, std::vector<std::pair<int, std::string> > > > &MainCalcTh::get_answer2()
+std::pair<std::pair<std::vector<double>, std::vector<std::vector<double> > >, std::pair<std::vector<std::pair<int, double> >, std::vector<std::pair<int, double> > > > &MainCalcTh::get_answer2()
 {
     return answer2;
 }

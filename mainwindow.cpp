@@ -11,7 +11,7 @@
 #include <QMessageBox>
 #include <QTime>
 #include <QPixmap>
-
+#include <QList>
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
@@ -37,7 +37,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->tableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
     ui->tableWidget->setColumnCount(N_DEF);
     QStringList labels;
-    labels << tr("i") << tr("Xi")<< tr("hi") << tr("Vi")<< tr("V^i") << tr("Vi-V^i")<< tr("ОЛП") << tr("Деления")<< tr("Удвоения");
+    labels << tr("i") << tr("Xi")<< tr("hi") << tr("Vi")<< tr("V^i") << tr("|Vi-V^i|")<< tr("||ОЛП||") << tr("Деления")<< tr("Удвоения");
     ui->tableWidget->setHorizontalHeaderLabels(labels);
     //ui->tableWidget->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
     for (int i=0;i<N_DEF;i++){
@@ -103,9 +103,9 @@ void MainWindow::resizeEvent(QResizeEvent *event)
  * @brief answer Result container
  */
 std::pair< std::pair<std::vector<double>, std::vector<std::vector<double>>>,
-    std::pair<std::vector<std::pair<int,std::string>>,std::vector<std::pair<int,std::string>>>> answer;
+    std::pair<std::vector<std::pair<int,double>>,std::vector<std::pair<int,double>>>> answer;
 std::pair< std::pair<std::vector<double>, std::vector<std::vector<double>>>,
-    std::pair<std::vector<std::pair<int,std::string>>,std::vector<std::pair<int,std::string>>>> answer2;
+    std::pair<std::vector<std::pair<int,double>>,std::vector<std::pair<int,double>>>> answer2;
 
 /**
  * @brief MainWindow::updateDataTable Show Table data
@@ -120,7 +120,7 @@ void MainWindow::updateDataTable(unsigned int num_of_lines1,unsigned int num_of_
     ui->tableWidget->setColumnCount(N_DEF);
     QStringList labels;
     // Fill column names Table1
-    labels << tr("i") << tr("Xi")<< tr("hi") << tr("Vi")<< tr("V^i") << tr("Vi-V^i")<< tr("ОЛП") << tr("Деления")<< tr("Удвоения");
+    labels << tr("i") << tr("Xi")<< tr("hi") << tr("Vi")<< tr("V^i") << tr("|Vi-V^i|")<< tr("||ОЛП||") << tr("Деления")<< tr("Удвоения");
     ui->tableWidget->setHorizontalHeaderLabels(labels);
     for (int i=0;i<N_DEF;i++){
          ui->tableWidget->horizontalHeader()->resizeSection(i, 80);
@@ -144,7 +144,7 @@ void MainWindow::updateDataTable(unsigned int num_of_lines1,unsigned int num_of_
         QTableWidgetItem *item0 = new QTableWidgetItem(QString::number(answer.second.first[i*N].first));
         ui->tableWidget->setItem(row, 0, item0);
         for(int col = 1; col < N; col++){
-            QTableWidgetItem *item0 = new QTableWidgetItem(QString(answer.second.first[i*N+col].second.c_str()));
+            QTableWidgetItem *item0 = new QTableWidgetItem(QString::number(answer.second.first[i*N+col].second));
             ui->tableWidget->setItem(row, col, item0);
         }
     }
@@ -157,7 +157,7 @@ void MainWindow::updateDataTable(unsigned int num_of_lines1,unsigned int num_of_
         QTableWidgetItem *item0 = new QTableWidgetItem(QString::number(answer.second.second[i*N].first));
         ui->tableWidget_2->setItem(row, 0, item0);
         for(int col = 1; col < N; col++){
-            QTableWidgetItem *item0 = new QTableWidgetItem(QString(answer.second.second[i*N+col].second.c_str()));
+            QTableWidgetItem *item0 = new QTableWidgetItem(QString::number(answer.second.second[i*N+col].second));
             ui->tableWidget_2->setItem(row, col, item0);
         }
     }
@@ -246,10 +246,10 @@ void MainWindow::fillResultsProcess()
     int num_of_lines1=answer.second.first.size()/N; //9 - 11
     int num_of_lines2=answer.second.second.size()/N;//9 - 11
     // Show results U(x)
-    QString ITERS_1= QString::number(num_of_lines1-1);//кол-во итераций
-    QString b_xn_1 = QString::number(inData.xT - std::stod(answer.second.first[(num_of_lines1-1)*N+1].second));//b-xn
-    QString MAX_H_x_1;          //x
-    QString MIN_H_x_1;        //x
+    double ITERS_1= (num_of_lines1-1);//кол-во итераций
+    double b_xn_1 = (inData.xT - answer.second.first[(num_of_lines1-1)*N+1].second);//b-xn
+    double MAX_H_x_1;          //x
+    double MIN_H_x_1;        //x
     double max1_olp=0;
     double max_h=0;
     double min_h=1000000;
@@ -257,38 +257,38 @@ void MainWindow::fillResultsProcess()
     int doubles=0;
     double max_p=0;
     for(int i=1;i<num_of_lines1;i++){
-        double temp=fabs(std::stod(answer.second.first[i*N+6].second));
+        double temp=fabs((answer.second.first[i*N+6].second));
         //double temp_global=fabs(std::stod(answer.second.first[i*N+9].second));
         //if(temp_global>max_p)
         //    max_p=temp_global;
         if (temp>max1_olp)
             max1_olp=temp;
-        double this_h=std::stod(answer.second.first[i*N+2].second);
+        double this_h=(answer.second.first[i*N+2].second);
         if(this_h<min_h){
             min_h=this_h;
-            MIN_H_x_1=QString::number(std::stod(answer.second.first[i*N+1].second));
+            MIN_H_x_1=((answer.second.first[i*N+1].second));
         }
         if(this_h>max_h){
             max_h=this_h;
-            MAX_H_x_1=QString::number(std::stod(answer.second.first[i*N+1].second));
+            MAX_H_x_1=((answer.second.first[i*N+1].second));
         }
-        divs+=std::stoi(answer.second.first[i*N+7].second);
-        doubles+=std::stoi(answer.second.first[i*N+8].second);
+        divs+=(answer.second.first[i*N+7].second);
+        doubles+=(answer.second.first[i*N+8].second);
     }
-    QString MAX_P_1=QString::number(max_p);//Макс Погрешность
-    QString MAX_OLP_1= QString::number(max1_olp); //Макс ОЛП
-    QString DIVS_1=QString::number(divs);   //делений
-    QString DOUBLES_1 =QString::number(doubles);   //удвоений
-    QString MAX_H_1=QString::number(max_h);     //Max_h
-    QString MIN_H_1=QString::number(min_h);       //Min_h
-    QStringList spravka1;
+    double MAX_P_1=(max_p);//Макс Погрешность
+    double MAX_OLP_1= (max1_olp); //Макс ОЛП
+    double DIVS_1=(divs);   //делений
+    double MAX_H_1=(max_h);     //Max_h
+    double MIN_H_1=(min_h);       //Min_h
+    double DOUBLES_1=doubles;
+    QList<double> spravka1;
     spravka1<<ITERS_1<<b_xn_1<<MAX_OLP_1<<DIVS_1<<DOUBLES_1<<MAX_H_1<<MAX_H_x_1<<MIN_H_1<<MIN_H_x_1;//<<MAX_P_1;
 
     //для справки 2 U'(x)
-    QString ITERS_2= QString::number(num_of_lines2-1);//кол-во итераций
-    QString b_xn_2 = QString::number(inData.xT-std::stod(answer.second.second[(num_of_lines2-1)*N+1].second));//b-xn
-    QString MAX_H_x_2;          //x
-    QString MIN_H_x_2;        //x
+    double ITERS_2= (num_of_lines2-1);//кол-во итераций
+    double b_xn_2 = (inData.xT-(answer.second.second[(num_of_lines2-1)*N+1].second));//b-xn
+    double MAX_H_x_2;          //x
+    double MIN_H_x_2;        //x
     max1_olp=0;
     max_p=0;
     max_h=0;
@@ -297,58 +297,58 @@ void MainWindow::fillResultsProcess()
     doubles=0;
     double MAX_SPEED=0;
     for(int i=1;i<num_of_lines2;i++){
-        double temp_speed=std::stod(answer.second.second[i*N+3].second);
+        double temp_speed=(answer.second.second[i*N+3].second);
         if(temp_speed> MAX_SPEED)
             MAX_SPEED=temp_speed;
         //double temp_global=fabs(std::stod(answer.second.second[i*N+9].second));
         //if(temp_global>max_p)
         //    max_p=temp_global;
-        double temp=fabs(std::stod(answer.second.second[i*N+6].second));
+        double temp=fabs((answer.second.second[i*N+6].second));
         if (temp>max1_olp)
             max1_olp=temp;
-        double this_h=std::stod(answer.second.second[i*N+2].second);
+        double this_h=(answer.second.second[i*N+2].second);
         if(this_h<min_h){
             min_h=this_h;
-            MIN_H_x_2=QString::number(std::stod(answer.second.second[i*N+1].second));
+            MIN_H_x_2=((answer.second.second[i*N+1].second));
         }
         if(this_h>max_h){
             max_h=this_h;
-            MAX_H_x_2=QString::number(std::stod(answer.second.second[i*N+1].second));
+            MAX_H_x_2=((answer.second.second[i*N+1].second));
         }
-        divs+=std::stoi(answer.second.second[i*N+7].second);
-        doubles+=std::stoi(answer.second.second[i*N+8].second);
+        divs+=(answer.second.second[i*N+7].second);
+        doubles+=(answer.second.second[i*N+8].second);
     }
     inData.MAX_SPEED=MAX_SPEED;
-    QString MAX_P_2=QString::number(max_p);//Макс Погрешность
-    QString MAX_OLP_2= QString::number(max1_olp); //Макс ОЛП
-    QString DIVS_2=QString::number(divs);   //делений
-    QString DOUBLES_2 =QString::number(doubles);   //удвоений
-    QString MAX_H_2=QString::number(max_h);     //Max_h
-    QString MIN_H_2=QString::number(min_h);       //Min_h
-    QStringList spravka2;
+    double MAX_P_2=(max_p);//Макс Погрешность
+    double MAX_OLP_2=(max1_olp); //Макс ОЛП
+    double DIVS_2=(divs);   //делений
+    double DOUBLES_2 =(doubles);   //удвоений
+    double MAX_H_2=(max_h);     //Max_h
+    double MIN_H_2=(min_h);       //Min_h
+    QList<double> spravka2;
     spravka2<<ITERS_2<<b_xn_2<<MAX_OLP_2<<DIVS_2<<DOUBLES_2<<MAX_H_2<<MAX_H_x_2<<MIN_H_2<<MIN_H_x_2;//<<MAX_P_2;
 
-    QString for_spravka_1="Итераций:  "+spravka1[0]+"\n";
-    for_spravka_1+= "xT - xn:  "+spravka1[1]+"\n";
-    for_spravka_1+= "Макс ОЛП:  "+spravka1[2]+"\n";
-    for_spravka_1+= "Делений:  "+spravka1[3]+"\n";
-    for_spravka_1+= "Удвоений:  "+spravka1[4]+"\n";
-    for_spravka_1+= "Макс h:  "+spravka1[5]+"\n";
-    for_spravka_1+= "x, где достигается Макс h: "+spravka1[6]+"\n";
-    for_spravka_1+= "Мин h:  "+spravka1[7]+"\n";
-    for_spravka_1+= "x, где достигается Мин h:  "+spravka1[8]+"\n";
+    QString for_spravka_1="Итераций:  "+QString::number(spravka1[0])+"\n";
+    for_spravka_1+= "xT - xn:  "+QString::number(spravka1[1])+"\n";
+    for_spravka_1+= "Макс ||ОЛП||:  "+QString::number(spravka1[2])+"\n";
+    for_spravka_1+= "Делений:  "+QString::number(spravka1[3])+"\n";
+    for_spravka_1+= "Удвоений:  "+QString::number(spravka1[4])+"\n";
+    for_spravka_1+= "Макс h:  "+QString::number(spravka1[5])+"\n";
+    for_spravka_1+= "x, где достигается Макс h: "+QString::number(spravka1[6])+"\n";
+    for_spravka_1+= "Мин h:  "+QString::number(spravka1[7])+"\n";
+    for_spravka_1+= "x, где достигается Мин h:  "+QString::number(spravka1[8])+"\n";
     //for_spravka_1+= "Макс глоб. погрешность:  "+spravka1[9]+"\n";
     ui->textEdit->setText(for_spravka_1);
 
-    QString for_spravka_2="Итераций:  "+spravka2[0]+"\n";
-    for_spravka_2+= "xT - xn:  "+spravka2[1]+"\n";
-    for_spravka_2+= "Макс ОЛП:  "+spravka2[2]+"\n";
-    for_spravka_2+= "Делений:  "+spravka2[3]+"\n";
-    for_spravka_2+= "Удвоений:  "+spravka2[4]+"\n";
-    for_spravka_2+= "Макс h:  "+spravka2[5]+"\n";
-    for_spravka_2+= "x, где достигается Макс h: "+spravka2[6]+"\n";
-    for_spravka_2+= "Мин h:  "+spravka2[7]+"\n";
-    for_spravka_2+= "x, где достигается Мин h:  "+spravka2[8]+"\n";
+    QString for_spravka_2="Итераций:  "+QString::number(spravka2[0])+"\n";
+    for_spravka_2+= "xT - xn:  "+QString::number(spravka2[1])+"\n";
+    for_spravka_2+= "Макс ||ОЛП||:  "+QString::number(spravka2[2])+"\n";
+    for_spravka_2+= "Делений:  "+QString::number(spravka2[3])+"\n";
+    for_spravka_2+= "Удвоений:  "+QString::number(spravka2[4])+"\n";
+    for_spravka_2+= "Макс h:  "+QString::number(spravka2[5])+"\n";
+    for_spravka_2+= "x, где достигается Макс h: "+QString::number(spravka2[6])+"\n";
+    for_spravka_2+= "Мин h:  "+QString::number(spravka2[7])+"\n";
+    for_spravka_2+= "x, где достигается Мин h:  "+QString::number(spravka2[8])+"\n";
     //for_spravka_2+= "Макс глоб. погрешность:  "+spravka2[9]+"\n";
     ui->textEdit_2->setText(for_spravka_2);
 

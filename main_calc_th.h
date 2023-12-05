@@ -38,17 +38,17 @@ private:
     InputFunc *inF;
 
     std::pair< std::pair<std::vector<double>, std::vector<std::vector<double>>>,
-        std::pair<std::vector<std::pair<int,std::string>>,std::vector<std::pair<int,std::string>>>> answer;
+        std::pair<std::vector<std::pair<int,double>>,std::vector<std::pair<int,double>>>> answer;
     std::pair< std::pair<std::vector<double>, std::vector<std::vector<double>>>,
-        std::pair<std::vector<std::pair<int,std::string>>,std::vector<std::pair<int,std::string>>>> answer2;
+        std::pair<std::vector<std::pair<int,double>>,std::vector<std::pair<int,double>>>> answer2;
 public:   
     MainCalcTh(){}
     void setInputData(InputData *inData, InputFunc *inFunc);
 
     std::pair< std::pair<std::vector<double>, std::vector<std::vector<double>>>,
-        std::pair<std::vector<std::pair<int,std::string>>,std::vector<std::pair<int,std::string>>>> &get_answer(void);
+        std::pair<std::vector<std::pair<int,double>>,std::vector<std::pair<int,double>>>> &get_answer(void);
     std::pair< std::pair<std::vector<double>, std::vector<std::vector<double>>>,
-        std::pair<std::vector<std::pair<int,std::string>>,std::vector<std::pair<int,std::string>>>> &get_answer2(void);
+        std::pair<std::vector<std::pair<int,double>>,std::vector<std::pair<int,double>>>> &get_answer2(void);
 protected:
     void run();
 signals:

@@ -4,7 +4,7 @@
 #include <functional>
 #include <cmath>
 #include <fstream>
-
+#include <stdlib.h>
 class numcpp {
 private:
 
@@ -152,12 +152,12 @@ public:
 	}
 
     const static std::pair< std::pair<std::vector<double>, std::vector<std::vector<double>>>,
-    std::pair<std::vector<std::pair<int,std::string>>,std::vector<std::pair<int,std::string>>>>
+    std::pair<std::vector<std::pair<int,double>>,std::vector<std::pair<int,double>>>>
         RK4_system(double x0, double xn, std::vector<double> u0, const std::vector<std::function<double(double, std::vector<double>)>>& f,double m,double k,double f_small,
             double step = 0.005, double precision = 0.001, size_t max_step = 1000000, int dif_step = 0, double eps = 0.01) {
 
-        std::vector<std::pair<int,std::string>> line_table1;
-        std::vector<std::pair<int,std::string>> line_table2;
+        std::vector<std::pair<int,double>> line_table1;
+        std::vector<std::pair<int,double>> line_table2;
 
 		std::vector<double> x_vals{ x0 };
 		std::vector<std::vector<double>> v_vals{ u0 };
@@ -176,27 +176,33 @@ public:
 		size_t divs_2 = 0;
 		size_t doubles_2 = 0;
 
-        line_table1.push_back(std::make_pair(0,std::to_string(num_of_steps)));
-        line_table1.push_back(std::make_pair(0,std::to_string(x0)));
-        line_table1.push_back(std::make_pair(0,std::to_string(h)));
-        line_table1.push_back(std::make_pair(0,std::to_string(u0[0])));
-        line_table1.push_back(std::make_pair(0,"-"));
-        line_table1.push_back(std::make_pair(0,"-"));
-        line_table1.push_back(std::make_pair(0,"-"));
-        line_table1.push_back(std::make_pair(0,std::to_string(divs_1)));
-        line_table1.push_back(std::make_pair(0,std::to_string(doubles_1)));
+        line_table1.push_back(std::make_pair(0,(num_of_steps)));
+        line_table1.push_back(std::make_pair(0,(x0)));
+        line_table1.push_back(std::make_pair(0,(h)));
+        line_table1.push_back(std::make_pair(0,(u0[0])));
+//        line_table1.push_back(std::make_pair(0,"-"));
+//        line_table1.push_back(std::make_pair(0,"-"));
+//        line_table1.push_back(std::make_pair(0,"-"));
+        line_table1.push_back(std::make_pair(0,0));
+        line_table1.push_back(std::make_pair(0,0));
+        line_table1.push_back(std::make_pair(0,0));
+        line_table1.push_back(std::make_pair(0,(divs_1)));
+        line_table1.push_back(std::make_pair(0,(doubles_1)));
         //line_table1.push_back(std::make_pair(0,std::to_string(u(x0))));
         //line_table1.push_back(std::make_pair(0,std::to_string(fabs(u(x0)-u0[0]))));
 
-        line_table2.push_back(std::make_pair(0,std::to_string(num_of_steps)));
-        line_table2.push_back(std::make_pair(0,std::to_string(x0)));
-        line_table2.push_back(std::make_pair(0,std::to_string(h)));
-        line_table2.push_back(std::make_pair(0,std::to_string(u0[1])));
-        line_table2.push_back(std::make_pair(0,"-"));
-        line_table2.push_back(std::make_pair(0,"-"));
-        line_table2.push_back(std::make_pair(0,"-"));
-        line_table2.push_back(std::make_pair(0,std::to_string(divs_2)));
-        line_table2.push_back(std::make_pair(0,std::to_string(doubles_2)));
+        line_table2.push_back(std::make_pair(0,(num_of_steps)));
+        line_table2.push_back(std::make_pair(0,(x0)));
+        line_table2.push_back(std::make_pair(0,(h)));
+        line_table2.push_back(std::make_pair(0,(u0[1])));
+//        line_table2.push_back(std::make_pair(0,"-"));
+//        line_table2.push_back(std::make_pair(0,"-"));
+//        line_table2.push_back(std::make_pair(0,"-"));
+        line_table2.push_back(std::make_pair(0,0));
+        line_table2.push_back(std::make_pair(0,0));
+        line_table2.push_back(std::make_pair(0,0));
+        line_table2.push_back(std::make_pair(0,(divs_2)));
+        line_table2.push_back(std::make_pair(0,(doubles_2)));
         //ine_table2.push_back(std::make_pair(0,std::to_string(u1(x0))));
         //line_table2.push_back(std::make_pair(0,std::to_string(fabs(u1(x0)-u0[1]))));
         num_of_steps++;
@@ -216,18 +222,22 @@ public:
 			size_t p = 4;
 
 			double S_1 = (v_help[0] - v[0]) / (pow(2, p) - 1);
-			double S_2 = (v_help[1] - v[1]) / (pow(2, p) - 1);
-
+            double S_2 = (v_help[1] - v[1]) / (pow(2, p) - 1);
+            double S_normal=0;
+            if(fabs(S_1)>fabs(S_2))
+                S_normal= S_1;
+            else
+                S_normal= S_2;
 			//////////////////////////////////////////////////////
 			if (dif_step)
 			{
-                if (abs(S_1) > precision || abs(S_2) > precision) {
+                if (fabs(S_normal) > precision) {
 					h /= 2;
 					++divs_1;
                     ++divs_2;
 					continue;
 				}
-                else if ((abs(S_1) < precision / (pow(2, p + 1))) && (abs(S_2) < precision / (pow(2, p + 1))))
+                else if (fabs(S_normal) < precision / (pow(2, p + 1)) )
 				{
 					h *= 2;
 					++doubles_1;
@@ -236,31 +246,31 @@ public:
             }
 			//////////////////////////////////////////////////////
 
-			double local_p_1 = S_1 * pow(2, p);
-			double local_p_2 = S_2 * pow(2, p);
+            double local_p_1 = S_normal * pow(2, p);
+            double local_p_2 = S_normal * pow(2, p);
 
-            line_table1.push_back(std::make_pair(num_of_steps,std::to_string(num_of_steps)));
-            line_table1.push_back(std::make_pair(num_of_steps,std::to_string(x)));
-            line_table1.push_back(std::make_pair(num_of_steps,std::to_string(h)));
-            line_table1.push_back(std::make_pair(num_of_steps,std::to_string(v[0])));
-            line_table1.push_back(std::make_pair(num_of_steps,std::to_string(v_help[0])));
-            line_table1.push_back(std::make_pair(num_of_steps,std::to_string(fabs(v_help[0]-v[0]))));
-            line_table1.push_back(std::make_pair(num_of_steps,std::to_string(local_p_1)));
-            line_table1.push_back(std::make_pair(num_of_steps,std::to_string(divs_1)));
-            line_table1.push_back(std::make_pair(num_of_steps,std::to_string(doubles_1)));
+            line_table1.push_back(std::make_pair(num_of_steps,(num_of_steps)));
+            line_table1.push_back(std::make_pair(num_of_steps,(x)));
+            line_table1.push_back(std::make_pair(num_of_steps,(h)));
+            line_table1.push_back(std::make_pair(num_of_steps,(v[0])));
+            line_table1.push_back(std::make_pair(num_of_steps,(v_help[0])));
+            line_table1.push_back(std::make_pair(num_of_steps,(fabs(v_help[0]-v[0]))));
+            line_table1.push_back(std::make_pair(num_of_steps,(fabs(local_p_1))));
+            line_table1.push_back(std::make_pair(num_of_steps,(divs_1)));
+            line_table1.push_back(std::make_pair(num_of_steps,(doubles_1)));
             //line_table1.push_back(std::make_pair(num_of_steps,std::to_string(u(x))));
             //line_table1.push_back(std::make_pair(num_of_steps,std::to_string(fabs(u(x)-v[0]))));
 
 
-            line_table2.push_back(std::make_pair(num_of_steps,std::to_string(num_of_steps)));
-            line_table2.push_back(std::make_pair(num_of_steps,std::to_string(x)));
-            line_table2.push_back(std::make_pair(num_of_steps,std::to_string(h)));
-            line_table2.push_back(std::make_pair(num_of_steps,std::to_string(v[1])));
-            line_table2.push_back(std::make_pair(num_of_steps,std::to_string(v_help[1])));
-            line_table2.push_back(std::make_pair(num_of_steps,std::to_string(fabs(v_help[1]-v[1]))));
-            line_table2.push_back(std::make_pair(num_of_steps,std::to_string(local_p_2)));
-            line_table2.push_back(std::make_pair(num_of_steps,std::to_string(divs_2)));
-            line_table2.push_back(std::make_pair(num_of_steps,std::to_string(doubles_2)));
+            line_table2.push_back(std::make_pair(num_of_steps,(num_of_steps)));
+            line_table2.push_back(std::make_pair(num_of_steps,(x)));
+            line_table2.push_back(std::make_pair(num_of_steps,(h)));
+            line_table2.push_back(std::make_pair(num_of_steps,(v[1])));
+            line_table2.push_back(std::make_pair(num_of_steps,(v_help[1])));
+            line_table2.push_back(std::make_pair(num_of_steps,(fabs(v_help[1]-v[1]))));
+            line_table2.push_back(std::make_pair(num_of_steps,(fabs(local_p_2))));
+            line_table2.push_back(std::make_pair(num_of_steps,(divs_2)));
+            line_table2.push_back(std::make_pair(num_of_steps,(doubles_2)));
             //line_table2.push_back(std::make_pair(num_of_steps,std::to_string(u1(x))));
             double test1=u1(x);
             double test2=v[1];
