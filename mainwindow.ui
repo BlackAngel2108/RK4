@@ -168,7 +168,7 @@
              </sizepolicy>
             </property>
             <property name="text">
-             <string>20</string>
+             <string>30</string>
             </property>
            </widget>
           </item>
@@ -381,7 +381,7 @@
              </sizepolicy>
             </property>
             <property name="text">
-             <string>0.001</string>
+             <string>0.01</string>
             </property>
            </widget>
           </item>
@@ -685,7 +685,7 @@
          </sizepolicy>
         </property>
         <property name="currentIndex">
-         <number>2</number>
+         <number>0</number>
         </property>
         <widget class="QWidget" name="tabChart">
          <attribute name="title">

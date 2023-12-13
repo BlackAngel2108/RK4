@@ -167,8 +167,8 @@ public:
         double C1=-u0[1]*sin(A*x0)/A+(u0[0]-F/k)*cos(A*x0);
         double C2=(u0[0]-F/k)*sin(A*x0)+cos(A*x0)*u0[1]/A;
 
-        auto u = [A,k,m,u0,C1,C2,F](double x){return C1*cos(A*x)+C2*sin(A*x)+F/k;};
-        auto u1 = [A,k,m,u0,C1,C2](double x){return C1*(-1)*A*sin(A*x)+C2*A*cos(A*x);};
+        //auto u = [A,k,m,u0,C1,C2,F](double x){return C1*cos(A*x)+C2*sin(A*x)+F/k;};
+        //auto u1 = [A,k,m,u0,C1,C2](double x){return C1*(-1)*A*sin(A*x)+C2*A*cos(A*x);};
 		double h = step;
 		size_t num_of_steps = 0;
 		size_t divs_1 = 0;
@@ -208,7 +208,7 @@ public:
         num_of_steps++;
 
 
-		while (num_of_steps < max_step && h > 0.00001) {
+        while (num_of_steps <= max_step && h > 0.00001) {
 			if (x_vals.back() + h > xn && x_vals.back() < xn - eps)
 				h = xn - eps - x_vals.back();
 			else if (x_vals.back() + h > xn)
@@ -216,7 +216,7 @@ public:
 
 			auto [x, v] = make_RK4_system_step(x_vals.back(), v_vals.back(), h, f);
 
-			auto [x_half, v_half] = make_RK4_system_step(x_vals.back(), v_vals.back(), h / 2, f);
+            auto [x_half, v_half] = make_RK4_system_step(x_vals.back(), v_vals.back(), h / 2, f);
 			auto [x_help, v_help] = make_RK4_system_step(x_half, v_half, h / 2, f);
 
 			size_t p = 4;
@@ -228,30 +228,37 @@ public:
                 S_normal= S_1;
             else
                 S_normal= S_2;
+            double test_h_start=h;
+            double test_x_start=x;
+            double this_h=h;
 			//////////////////////////////////////////////////////
 			if (dif_step)
-			{
-                if (fabs(S_normal) > precision) {
-					h /= 2;
+            {
+                if (fabs(S_normal) < precision / (pow(2, p + 1)) )
+                {  
+                    h *= 2.0;
+                    ++doubles_1;
+                    ++doubles_2;
+                }
+                else if (fabs(S_normal) > precision) {
+                    h /= 2.0;
 					++divs_1;
                     ++divs_2;
 					continue;
 				}
-                else if (fabs(S_normal) < precision / (pow(2, p + 1)) )
-				{
-					h *= 2;
-					++doubles_1;
-                    ++doubles_2;
-				}
+
             }
 			//////////////////////////////////////////////////////
 
+//            double local_p_1 = S_1 * pow(2, p);
+//            double local_p_2 = S_2 * pow(2, p);
             double local_p_1 = S_normal * pow(2, p);
             double local_p_2 = S_normal * pow(2, p);
-
+            double test_h=h;
+            double test_x=x;
             line_table1.push_back(std::make_pair(num_of_steps,(num_of_steps)));
             line_table1.push_back(std::make_pair(num_of_steps,(x)));
-            line_table1.push_back(std::make_pair(num_of_steps,(h)));
+            line_table1.push_back(std::make_pair(num_of_steps,(this_h)));
             line_table1.push_back(std::make_pair(num_of_steps,(v[0])));
             line_table1.push_back(std::make_pair(num_of_steps,(v_help[0])));
             line_table1.push_back(std::make_pair(num_of_steps,(fabs(v_help[0]-v[0]))));
@@ -264,7 +271,7 @@ public:
 
             line_table2.push_back(std::make_pair(num_of_steps,(num_of_steps)));
             line_table2.push_back(std::make_pair(num_of_steps,(x)));
-            line_table2.push_back(std::make_pair(num_of_steps,(h)));
+            line_table2.push_back(std::make_pair(num_of_steps,(this_h)));
             line_table2.push_back(std::make_pair(num_of_steps,(v[1])));
             line_table2.push_back(std::make_pair(num_of_steps,(v_help[1])));
             line_table2.push_back(std::make_pair(num_of_steps,(fabs(v_help[1]-v[1]))));
@@ -272,10 +279,10 @@ public:
             line_table2.push_back(std::make_pair(num_of_steps,(divs_2)));
             line_table2.push_back(std::make_pair(num_of_steps,(doubles_2)));
             //line_table2.push_back(std::make_pair(num_of_steps,std::to_string(u1(x))));
-            double test1=u1(x);
-            double test2=v[1];
-            double test3=u1(x)-v[1];
-            double test4=fabs(u1(x)-v[1]);
+            //double test1=u1(x);
+            //double test2=v[1];
+            //double test3=u1(x)-v[1];
+            //double test4=fabs(u1(x)-v[1]);
             //line_table2.push_back(std::make_pair(num_of_steps,std::to_string(fabs(u1(x)-v[1]))));
 
 

@@ -20,13 +20,13 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
     // Insert QGraphicsView
     chartU = new View_Chart1(ui->tabChart);
-    chartU->axisX->setTitleText("Axis X");
-    chartU->axisY->setTitleText("Axis U");
-    //v_chart1->setAxisNames("X", "U");
+    chartU->axisX->setTitleText("X [c]");
+    chartU->axisY->setTitleText("U [см]");
+    //v_chart1->setAxisNames("X [c]", "U [см]");
     chartPhaze = new View_Chart1(ui->tab_chart2);
-    //v_chart2->setAxisNames("U", "U'");
-    chartPhaze->axisX->setTitleText("Axis U");
-    chartPhaze->axisY->setTitleText("Axis U '");
+    //v_chart2->setAxisNames("U [см]", "U' [см/с]");
+    chartPhaze->axisX->setTitleText("U [см]");
+    chartPhaze->axisY->setTitleText("U '[см/с]");
 
 
 
@@ -144,7 +144,7 @@ void MainWindow::updateDataTable(unsigned int num_of_lines1,unsigned int num_of_
         QTableWidgetItem *item0 = new QTableWidgetItem(QString::number(answer.second.first[i*N].first));
         ui->tableWidget->setItem(row, 0, item0);
         for(int col = 1; col < N; col++){
-            QTableWidgetItem *item0 = new QTableWidgetItem(QString::number(answer.second.first[i*N+col].second));
+            QTableWidgetItem *item0 = new QTableWidgetItem(QString::number(answer.second.first[i*N+col].second,'g',16));
             ui->tableWidget->setItem(row, col, item0);
         }
     }
@@ -281,11 +281,16 @@ void MainWindow::fillResultsProcess()
     double MAX_H_1=(max_h);     //Max_h
     double MIN_H_1=(min_h);       //Min_h
     double DOUBLES_1=doubles;
+    double Last=answer.second.first[(num_of_lines1-1)*N+1].second;
+    double Last_V=answer.second.first[(num_of_lines1-1)*N+3].second;
     QList<double> spravka1;
-    spravka1<<ITERS_1<<b_xn_1<<MAX_OLP_1<<DIVS_1<<DOUBLES_1<<MAX_H_1<<MAX_H_x_1<<MIN_H_1<<MIN_H_x_1;//<<MAX_P_1;
+    spravka1<<ITERS_1<<b_xn_1<<Last<<MAX_OLP_1<<DIVS_1<<DOUBLES_1<<MAX_H_1<<MAX_H_x_1<<MIN_H_1<<MIN_H_x_1<<Last_V;//<<MAX_P_1;
 
     //для справки 2 U'(x)
     double ITERS_2= (num_of_lines2-1);//кол-во итераций
+    double tmp1=inData.xT;
+    double tmp2=answer.second.second[(num_of_lines2-1)*N+1].second;
+    double tmp3=answer.second.second[(num_of_lines2-1)*N].second;
     double b_xn_2 = (inData.xT-(answer.second.second[(num_of_lines2-1)*N+1].second));//b-xn
     double MAX_H_x_2;          //x
     double MIN_H_x_2;        //x
@@ -325,30 +330,38 @@ void MainWindow::fillResultsProcess()
     double DOUBLES_2 =(doubles);   //удвоений
     double MAX_H_2=(max_h);     //Max_h
     double MIN_H_2=(min_h);       //Min_h
+    double Last_2=answer.second.first[(num_of_lines1-1)*N+1].second;
+    double Last_V_2=answer.second.second[(num_of_lines1-1)*N+3].second;
     QList<double> spravka2;
-    spravka2<<ITERS_2<<b_xn_2<<MAX_OLP_2<<DIVS_2<<DOUBLES_2<<MAX_H_2<<MAX_H_x_2<<MIN_H_2<<MIN_H_x_2;//<<MAX_P_2;
+    spravka2<<ITERS_2<<b_xn_2<<Last_2<<MAX_OLP_2<<DIVS_2<<DOUBLES_2<<MAX_H_2<<MAX_H_x_2<<MIN_H_2<<MIN_H_x_2<<Last_V_2;//<<MAX_P_2;
 
     QString for_spravka_1="Итераций:  "+QString::number(spravka1[0])+"\n";
-    for_spravka_1+= "xT - xn:  "+QString::number(spravka1[1])+"\n";
-    for_spravka_1+= "Макс ||ОЛП||:  "+QString::number(spravka1[2])+"\n";
-    for_spravka_1+= "Делений:  "+QString::number(spravka1[3])+"\n";
-    for_spravka_1+= "Удвоений:  "+QString::number(spravka1[4])+"\n";
-    for_spravka_1+= "Макс h:  "+QString::number(spravka1[5])+"\n";
-    for_spravka_1+= "x, где достигается Макс h: "+QString::number(spravka1[6])+"\n";
-    for_spravka_1+= "Мин h:  "+QString::number(spravka1[7])+"\n";
-    for_spravka_1+= "x, где достигается Мин h:  "+QString::number(spravka1[8])+"\n";
+    for_spravka_1+= "b - xn:  "+QString::number(spravka1[1])+"\n";
+    for_spravka_1+= "xn:  "+QString::number(spravka1[2],'g',16)+"\n";
+    for_spravka_1+= "Vn:  "+QString::number(spravka1[10],'g',16)+"\n";
+    for_spravka_1+= "Макс ||ОЛП||:  "+QString::number(spravka1[3])+"\n";
+    for_spravka_1+= "Делений:  "+QString::number(spravka1[4])+"\n";
+    for_spravka_1+= "Удвоений:  "+QString::number(spravka1[5])+"\n";
+    for_spravka_1+= "Макс h:  "+QString::number(spravka1[6])+"\n";
+    for_spravka_1+= "x, где достигается Макс h: "+QString::number(spravka1[7])+"\n";
+    for_spravka_1+= "Мин h:  "+QString::number(spravka1[8])+"\n";
+    for_spravka_1+= "x, где достигается Мин h:  "+QString::number(spravka1[9])+"\n";
+
     //for_spravka_1+= "Макс глоб. погрешность:  "+spravka1[9]+"\n";
     ui->textEdit->setText(for_spravka_1);
 
     QString for_spravka_2="Итераций:  "+QString::number(spravka2[0])+"\n";
-    for_spravka_2+= "xT - xn:  "+QString::number(spravka2[1])+"\n";
-    for_spravka_2+= "Макс ||ОЛП||:  "+QString::number(spravka2[2])+"\n";
-    for_spravka_2+= "Делений:  "+QString::number(spravka2[3])+"\n";
-    for_spravka_2+= "Удвоений:  "+QString::number(spravka2[4])+"\n";
-    for_spravka_2+= "Макс h:  "+QString::number(spravka2[5])+"\n";
-    for_spravka_2+= "x, где достигается Макс h: "+QString::number(spravka2[6])+"\n";
-    for_spravka_2+= "Мин h:  "+QString::number(spravka2[7])+"\n";
-    for_spravka_2+= "x, где достигается Мин h:  "+QString::number(spravka2[8])+"\n";
+    for_spravka_2+= "b - xn:  "+QString::number(spravka2[1])+"\n";
+    for_spravka_2+= "xn:  "+QString::number(spravka2[2],'g',16)+"\n";
+    for_spravka_2+= "V'n:  "+QString::number(spravka2[10],'g',16)+"\n";
+    for_spravka_2+= "Макс ||ОЛП||:  "+QString::number(spravka2[3])+"\n";
+    for_spravka_2+= "Делений:  "+QString::number(spravka2[4])+"\n";
+    for_spravka_2+= "Удвоений:  "+QString::number(spravka2[5])+"\n";
+    for_spravka_2+= "Макс h:  "+QString::number(spravka2[6])+"\n";
+    for_spravka_2+= "x, где достигается Макс h: "+QString::number(spravka2[7])+"\n";
+    for_spravka_2+= "Мин h:  "+QString::number(spravka2[8])+"\n";
+    for_spravka_2+= "x, где достигается Мин h:  "+QString::number(spravka2[9])+"\n";
+
     //for_spravka_2+= "Макс глоб. погрешность:  "+spravka2[9]+"\n";
     ui->textEdit_2->setText(for_spravka_2);
 
